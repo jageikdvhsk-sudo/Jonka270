@@ -1,0 +1,1104 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Гонка 270</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Oswald:wght@500;600;700&display=swap">
+<style>
+/* Раскладка: графика студии ночи выборов. Сверху «чирон», в центре плиточная карта штатов, справа панели действий.
+   Один смелый приём: карта и шкала выборщиков. Остальное спокойное. */
+:root{
+  --ground:#08121F; --panel:#0F1E34; --panel2:#15294A; --line:#23395B;
+  --text:#E9EFF9; --dim:#93A7C6; --gold:#E8B84B;
+  --blue:#2F7DF0; --blue-d:#1B4FB0; --red:#E5484D; --red-d:#A82B30;
+  --good:#46B887; --bad:#F06A6E; --c1:#E8B84B; --c2:#58B8A8;
+  --d3:#1D58C9; --d2:#3E80E4; --d1:#8DB2F0; --r3:#BF2D33; --r2:#DD5359; --r1:#EE9A9D; --toss:#CDAA4B;
+  --f-disp:'Oswald','Arial Narrow','Roboto Condensed',sans-serif;
+  --f-body:'IBM Plex Sans','Segoe UI',system-ui,sans-serif;
+  --f-mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--text);font:400 15px/1.5 var(--f-body);-webkit-text-size-adjust:100%}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:16px;padding-block:14px 56px}
+#app{--me:var(--blue);--me-d:var(--blue-d);--op:var(--red)}
+#app[data-side="R"]{--me:var(--red);--me-d:var(--red-d);--op:var(--blue)}
+h1,h2,h3{font-family:var(--f-disp);text-transform:uppercase;letter-spacing:.02em;font-weight:600;margin:0;line-height:1.08;text-wrap:balance}
+h1{font-size:clamp(54px,13vw,112px);font-weight:700;letter-spacing:0}
+h2{font-size:clamp(26px,5vw,36px)}
+h3{font-size:19px;letter-spacing:.04em}
+p{margin:0}
+.dim{color:var(--dim)}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.stack{display:flex;flex-direction:column;gap:16px}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr))}
+.grid3{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr))}
+.lbl{font:600 11px var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+
+.chy{display:flex;align-items:stretch;min-height:44px;margin-bottom:18px;background:var(--panel2);border-radius:2px;overflow:hidden}
+.chy .tag{background:var(--me);color:#fff;font:600 16px var(--f-disp);text-transform:uppercase;letter-spacing:.09em;padding:0 16px;display:flex;align-items:center;white-space:nowrap}
+.chy .txt{padding:8px 14px;display:flex;align-items:center;gap:6px 18px;flex-wrap:wrap;min-width:0;font:500 13px var(--f-mono);color:var(--dim)}
+.chy .txt b{color:var(--text);font-weight:600}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:3px;padding:16px;min-width:0}
+.card.flat{background:transparent}
+.btn{font:600 14px var(--f-disp);text-transform:uppercase;letter-spacing:.08em;padding:11px 18px;border:1px solid var(--line);background:var(--panel2);color:var(--text);cursor:pointer;border-radius:3px;min-height:42px}
+.btn:hover:not(:disabled){border-color:var(--dim)}
+.btn.pri{background:var(--me-d);border-color:var(--me);color:#fff}
+.btn.big{font-size:17px;padding:14px 26px}
+.btn.sm{padding:7px 11px;font-size:12px;min-height:34px;letter-spacing:.06em}
+.btn:disabled{opacity:.38;cursor:not-allowed}
+.btn:focus-visible,.opt:focus-visible,.tile:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.opt{display:block;width:100%;text-align:left;font:inherit;color:inherit;background:var(--panel);border:1px solid var(--line);border-radius:3px;padding:14px;cursor:pointer;min-width:0}
+.opt:hover:not(:disabled){border-color:var(--dim)}
+.opt.on{border-color:var(--me);background:var(--panel2);box-shadow:inset 4px 0 0 var(--me)}
+.opt:disabled{opacity:.45;cursor:not-allowed}
+.opt .t{font:600 18px var(--f-disp);text-transform:uppercase;letter-spacing:.03em;display:block;margin-bottom:4px}
+.opt .s{font-size:13px;color:var(--dim);display:block}
+.opt .m{font:500 12px var(--f-mono);color:var(--gold);display:block;margin-top:8px}
+.dots i{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--line);margin-right:3px}
+.dots i.on{background:var(--gold)}
+.pill{display:inline-block;font:600 11px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:2px;background:var(--panel2);color:var(--dim)}
+.pill.me{background:var(--me-d);color:#fff}
+.pill.good{background:#17402F;color:#8EE6BE}
+.pill.bad{background:#4A1D20;color:#FFB3B5}
+.pill.gold{background:#4A3A10;color:var(--gold)}
+input[type=range]{width:100%;accent-color:var(--me);height:32px}
+
+.hero{display:flex;flex-direction:column;gap:14px;padding-block:6px 10px}
+.path{display:flex;flex-wrap:wrap;gap:8px;font:600 13px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--dim)}
+.path span{background:var(--panel2);padding:6px 10px;border-radius:2px}
+.path span b{color:var(--gold);margin-right:6px}
+.cand{display:flex;flex-direction:column;gap:10px}
+.cand .party{height:6px;border-radius:2px}
+.stat{display:flex;align-items:center;gap:10px;font:500 12px var(--f-mono);color:var(--dim)}
+.stat i{display:block;height:6px;background:var(--line);flex:1;border-radius:2px;position:relative}
+.stat i b{position:absolute;inset:0 auto 0 0;background:var(--gold);border-radius:2px}
+
+.seg{display:flex;height:26px;border-radius:2px;overflow:hidden;background:var(--panel2)}
+.seg>div{height:100%;min-width:0}
+.seg.tall{height:34px}
+.cum{position:relative}
+.cum .mark{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--text)}
+
+.evbar{position:relative;margin-bottom:18px}
+.evbar .seg{height:30px}
+.evbar .mid{position:absolute;left:50.2%;top:-5px;bottom:-5px;width:2px;background:var(--text)}
+.evbar .nums{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:8px;font:600 13px var(--f-mono)}
+.evbar .nums span:nth-child(1){color:var(--me)}
+.evbar .nums span:nth-child(2){color:var(--toss)}
+.evbar .nums span:nth-child(3){color:var(--op)}
+
+.layout{display:grid;gap:16px;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);align-items:start}
+@media (max-width:860px){.layout{grid-template-columns:minmax(0,1fr)}}
+.map{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:3px}
+.tile{aspect-ratio:1;border:0;border-radius:3px;color:#fff;font:600 clamp(9px,2.3vw,13px) var(--f-mono);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05;position:relative;padding:0;cursor:pointer;background:var(--panel2);min-width:0}
+.tile small{font-size:.72em;opacity:.85;font-weight:500}
+.tile.d3{background:var(--d3)} .tile.d2{background:var(--d2)} .tile.d1{background:var(--d1);color:#06182F}
+.tile.r3{background:var(--r3)} .tile.r2{background:var(--r2)} .tile.r1{background:var(--r1);color:#3A0709}
+.tile.t0{background:var(--toss);color:#241A00}
+.tile.u{background:var(--panel2);color:var(--dim)}
+.tile.sel{outline:2px solid #fff;outline-offset:1px;z-index:1}
+.tile.ad::before{content:"";position:absolute;top:3px;right:3px;width:6px;height:6px;border-radius:50%;background:#fff;opacity:.9}
+.tile.g1::after,.tile.g2::after,.tile.g3::after{content:"";position:absolute;left:12%;bottom:3px;height:3px;border-radius:2px;background:#fff;opacity:.85}
+.tile.g1::after{width:25%} .tile.g2::after{width:50%} .tile.g3::after{width:76%}
+.legend{display:flex;gap:6px 14px;flex-wrap:wrap;font:500 11px var(--f-mono);color:var(--dim);margin-top:10px}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+
+.kv{display:flex;justify-content:space-between;gap:12px;font-size:14px;padding:6px 0;border-bottom:1px solid var(--line)}
+.kv:last-child{border-bottom:0}
+.acts{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr))}
+.log{display:flex;flex-direction:column;gap:6px;font-size:13px}
+.log div{padding-left:10px;border-left:2px solid var(--line)}
+.log div b{font:600 11px var(--f-mono);color:var(--gold);margin-right:6px}
+
+.modal{position:fixed;inset:0;background:rgba(3,8,16,.82);display:flex;padding:16px;padding-top:calc(16px + env(safe-area-inset-top,0px));padding-bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:30;overflow:auto}
+.modal .box{background:var(--panel);border:1px solid var(--line);border-top:4px solid var(--me);max-width:640px;width:100%;padding:20px;margin:auto;display:flex;flex-direction:column;gap:14px}
+
+.big-n{font:700 clamp(48px,11vw,84px)/1 var(--f-disp);font-variant-numeric:tabular-nums}
+.night{display:grid;gap:16px;grid-template-columns:repeat(2,minmax(0,1fr))}
+.night .side{padding:14px 16px;background:var(--panel);border-top:4px solid var(--line)}
+.night .side.me{border-top-color:var(--me)} .night .side.op{border-top-color:var(--op)}
+.win{color:var(--good)}
+.hint{font-size:13px;color:var(--dim)}
+.quote{border-left:3px solid var(--gold);padding-left:12px;color:var(--dim);font-size:14px}
+.nowrap{white-space:nowrap}
+@media (prefers-reduced-motion:no-preference){.tile{transition:background-color .25s}}
+.tile.old{opacity:.6}
+.tile.dis small::after{content:" ?";font-weight:700}
+.srcrow{display:flex;justify-content:space-between;gap:10px;align-items:center;width:100%;text-align:left;font:inherit;color:inherit;background:transparent;border:1px solid var(--line);border-radius:3px;padding:8px 10px;cursor:pointer;min-width:0}
+.srcrow:hover{border-color:var(--dim)}
+.srcrow.on{border-color:var(--me);background:var(--panel2);box-shadow:inset 3px 0 0 var(--me)}
+.srcrow:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.srcrow .mono{font-size:12px;white-space:nowrap}
+.pmap{max-width:460px}
+.tile.pt{cursor:default;font-size:clamp(8px,1.8vw,11px)}
+.tile.pt small{display:none}
+.tile.pt.fut{opacity:.5}
+.tile.pt.cur{box-shadow:inset 0 0 0 2px var(--gold)}
+.sgbar{display:flex;gap:2px;height:22px}
+.sg{display:flex;overflow:hidden;border-radius:2px;min-width:6px}
+.sg>div{height:100%}
+.sg.cur{outline:2px solid var(--gold);outline-offset:1px}
+.pm{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
+.pm>div{flex:1 1 260px;min-width:0}
+.sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+</style>
+
+<div class="wrap"><div id="app"></div></div>
+
+<script>
+(function(){
+'use strict';
+
+/* ================= утилиты ================= */
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const gauss=()=>{let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)};
+const sum=a=>a.reduce((x,y)=>x+y,0);
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const f1=v=>(Math.round(v*10)/10).toFixed(1).replace('.',',');
+const sgn=v=>(v>0?'+':v<0?'−':'')+f1(Math.abs(v));
+const money=v=>'$'+f1(v)+' млн';
+const pl=(n,w)=>{n=Math.abs(n)%100;const k=n%10;return(n>10&&n<20)?w[2]:k>1&&k<5?w[1]:k===1?w[0]:w[2]};
+
+/* ================= данные ================= */
+const ISSUES={economy:'Экономика и работа',health:'Здравоохранение',immigration:'Граница и миграция',climate:'Климат и энергетика',security:'Порядок и безопасность',taxes:'Налоги и бюджет'};
+const ISSUE_D={economy:'Зарплаты, цены, рабочие места',health:'Страховка, лекарства, клиники',immigration:'Контроль границы, статус мигрантов',climate:'Энергопереход и добыча',security:'Полиция, преступность, оборона',taxes:'Налоги и госдолг'};
+const OWNER={health:'D',climate:'D',immigration:'R',security:'R',taxes:'R',economy:null};
+const ownMod=(side,i)=>OWNER[i]===null?1:(OWNER[i]===side?1.3:0.7);
+const PARTIES={
+  D:{n:'Демократы',base:{health:1,climate:.95,economy:.8,immigration:.35,security:.25,taxes:.4}},
+  R:{n:'Республиканцы',base:{immigration:1,security:.95,taxes:.9,economy:.8,health:.2,climate:.15}}
+};
+const CANDS={
+  D:{name:'Сара Мэйтленд',title:'Бывший губернатор Мичигана, 54 года',bio:'Бывший прокурор. Знает бюджет до цента, на публике держится сдержанно и не любит импровизировать.',stats:{charisma:6,policy:8,resilience:6},funds:20,home:5,fx:{ground:1.15},perk:'Сеть волонтёров: полевая работа эффективнее на 15%'},
+  R:{name:'Рэй Бреннан',title:'Сенатор от Техаса, 58 лет',bio:'Бывший предприниматель. Живо говорит с залом и легко находит деньги, но путается в деталях законов.',stats:{charisma:8,policy:5,resilience:7},funds:24,home:4,fx:{ads:1.1},perk:'Крупные доноры: на $4 млн больше в начале, реклама на 10% эффективнее'}
+};
+const RIVALS={
+  D:[{id:'r1',name:'Томас Лэнгли',tag:'Партийный истеблишмент',pos:74,accents:['economy','taxes','security'],money:22,charisma:6.5,home:2,vp:'PA'},
+     {id:'r2',name:'Инес Коваль',tag:'Левое крыло',pos:14,accents:['health','climate','economy'],money:14,charisma:7.5,home:1,vp:'NM'}],
+  R:[{id:'r1',name:'Уильям Грейсон',tag:'Партийный истеблишмент',pos:72,accents:['economy','taxes','security'],money:24,charisma:6.5,home:2,vp:'VA'},
+     {id:'r2',name:'Кэл Бишоп',tag:'Популистское крыло',pos:15,accents:['immigration','security','economy'],money:12,charisma:7.8,home:1,vp:'AZ'}]
+};
+const VPS={
+  D:[{id:'v1',name:'Карлос Рамирес',role:'Сенатор от Аризоны',home:'AZ',deb:.5,unity:0,desc:'Сильный в Юго-Западных штатах, уверенно ведёт дебаты.'},
+     {id:'v2',name:'Джанет Оукс',role:'Губернатор Пенсильвании',home:'PA',deb:.3,unity:.1,desc:'Знает промышленный пояс, любима профсоюзами.'},
+     {id:'v3',name:'Девон Картер',role:'Сенатор от Джорджии',home:'GA',deb:.4,unity:0,desc:'Мобилизует городских избирателей Юга.'},
+     {id:'v4',name:'Майкл Лунд',role:'Конгрессмен от Висконсина',home:'WI',deb:0,unity:.3,desc:'Примиряет крылья партии, но малоизвестен.'}],
+  R:[{id:'v1',name:'Дэвид Хейс',role:'Губернатор Флориды',home:'FL',deb:.4,unity:0,desc:'Популярен на Юго-Востоке, привлекает деньги.'},
+     {id:'v2',name:'Лора Бенсон',role:'Сенатор от Аризоны',home:'AZ',deb:.5,unity:0,desc:'Говорит на языке пограничных штатов.'},
+     {id:'v3',name:'Трэвис Кейн',role:'Губернатор Пенсильвании',home:'PA',deb:.3,unity:.1,desc:'Опытный управленец, нравится рабочим городам.'},
+     {id:'v4',name:'Грег Ольсен',role:'Конгрессмен от Мичигана',home:'MI',deb:0,unity:.3,desc:'Примиряет крылья партии, но малоизвестен.'}]
+};
+const ADV_LIST=[
+  {id:'strategist',name:'Марк Дельгадо',role:'Главный стратег',d:'Точнее опросы осенью, ваши темы работают сильнее. В праймериз усиливает попадание в повестку.',fx:{poll:.6,accent:1.35}},
+  {id:'finance',name:'Рита Гольдман',role:'Финансовый директор',d:'Донорский доход выше на 40%, сбор средств приносит на 50% больше.',fx:{income:1.4,fundraise:1.5}},
+  {id:'media',name:'Деррик Оуэнс',role:'Медиадиректор',d:'Любая реклама эффективнее на 30%.',fx:{ads:1.3}},
+  {id:'field',name:'Хавьер Мендес',role:'Руководитель полевой работы',d:'Полевая работа и штабы в штатах эффективнее на 50%.',fx:{ground:1.5}},
+  {id:'coach',name:'Элис Ванг',role:'Тренер по дебатам',d:'Плюс к дебатам, митинги эффективнее на 25%.',fx:{debate:1.5,rally:1.25}},
+  {id:'crisis',name:'Нэнси Бролин',role:'Кризис-менеджер',d:'Потери от скандалов и промахов вдвое меньше.',fx:{crisis:.5}}
+];
+const ADV={};ADV_LIST.forEach(a=>ADV[a.id]=a);
+
+const STAGES=[
+  {id:1,name:'Айова',sub:'Кокусы: решают самые активные',date:'Январь',del:40,ep:22,hot:['economy','taxes'],w:{ads:.6,ground:1.4,rally:1.2},txt:'Голосует партийный актив. Ценят идейную чистоту и личные встречи. Телереклама работает слабо.'},
+  {id:2,name:'Нью-Гэмпшир',sub:'Открытые праймериз',date:'Февраль',del:30,ep:70,hot:['economy','health'],w:{ads:1.1,ground:.8,rally:1.1},txt:'Приходят независимые избиратели. Побеждает тот, кто звучит умеренно.'},
+  {id:3,name:'Юг и Невада',sub:'Коалиция разных групп',date:'Конец февраля',del:110,ep:45,hot:['security','health'],w:{ads:1,ground:1,rally:.8},txt:'Нужна широкая коалиция. Важны темы безопасности и доступной медицины.'},
+  {id:4,name:'Супервторник',sub:'Полстраны голосует за один день',date:'Начало марта',del:420,ep:50,hot:['economy','immigration'],w:{ads:1.5,ground:.9,rally:.5},txt:'Много штатов сразу. Митинги не успеть, решают деньги и реклама.'},
+  {id:5,name:'Большой финал',sub:'Средний Запад и Калифорния',date:'Апрель – июнь',del:350,ep:40,hot:['climate','security'],w:{ads:1.2,ground:1.1,rally:.8},txt:'Решающая битва. Партийная база снова поднимает голос.'}
+];
+const TACT={
+  ads:{n:'Телереклама',cost:6,v:1.0,d:'Эффективна в больших этапах'},
+  ground:{n:'Полевая работа',cost:4,v:.8,d:'Волонтёры, обзвон, явка актива'},
+  rally:{n:'Туры и митинги',cost:2,v:.7,d:'Дёшево, лучше всего в малых этапах'},
+  debate:{n:'Теледебаты',cost:1,v:.5,d:'Зависит от харизмы и знания политики: можно блеснуть, можно провалиться'},
+  endorse:{n:'Поддержка влиятельных людей',cost:2,v:.65,d:'Губернаторы, профсоюзы, лидеры мнений. Лучше всего в начале гонки'},
+  fund:{n:'Сбор средств',cost:0,v:0,d:'Вместо борьбы за голоса: деньги в фонд, пока доноры щедры'},
+  oppo:{n:'Досье на соперника',cost:3,v:0,d:'Бьёт по выбранному сопернику, но может оказаться пустышкой'},
+  attack:{n:'Удар по сопернику',cost:5,v:0,d:'Надёжнее досье, но портит единство партии'}
+};
+const XW={1:{debate:.8,endorse:1.2},2:{debate:1.2,endorse:1},3:{debate:1,endorse:.9},4:{debate:.6,endorse:.7},5:{debate:1.3,endorse:.8}};
+const REG_COST=1.5;
+const STC={1:'#6B7BA3',2:'#8A79B8',3:'#4F9A8E',4:'#C08A3E',5:'#B0607A'};
+const RN={NE:'Северо-восток',SE:'Юго-восток',MW:'Средний Запад',SW:'Юго-запад',W:'Горный Запад',PAC:'Тихий океан'};
+const ST3=['NV','SC','GA','LA','MS'];
+const ST4=['TX','NC','VA','TN','AL','AR','OK','MA','MN','CO','VT','UT','ME','KY'];
+const stageOf=c=>c==='IA'?1:c==='NH'?2:ST3.indexOf(c)>=0?3:ST4.indexOf(c)>=0?4:5;
+const winCol=id=>id==='me'?'var(--me)':id==='r1'?'var(--c1)':'var(--c2)';
+const DIFF={easy:{n:'Новичок',op:1,env:1,riv:.6,of:36,oi:11,oe:.85},normal:{n:'Профи',op:1.5,env:0,riv:1.5,of:50,oi:14,oe:1.05},hard:{n:'Легенда',op:1.9,env:-1.5,riv:2,of:60,oi:17,oe:1.25}};
+
+const RAW=[
+['AK','Аляска',3,-11,'PAC','climate,economy',7,1],['AL','Алабама',9,-30,'SE','security,taxes',6,6],['AR','Арканзас',6,-30,'SE','taxes,security',5,4],
+['AZ','Аризона',11,-5.5,'SW','immigration,economy',5,1],['CA','Калифорния',54,20,'PAC','climate,economy',4,0],['CO','Колорадо',10,11,'W','climate,health',4,2],
+['CT','Коннектикут',7,14,'NE','taxes,economy',3,9],['DC','Округ Колумбия',3,80,'NE','health,security',5,8],['DE','Делавэр',3,15,'NE','economy,health',4,9],
+['FL','Флорида',30,-13,'SE','immigration,health',7,8],['GA','Джорджия',16,-2,'SE','economy,security',6,7],['HI','Гавайи',4,25,'PAC','climate,economy',7,0],
+['IA','Айова',6,-13,'MW','economy,taxes',3,4],['ID','Айдахо',4,-37,'W','taxes,security',2,1],['IL','Иллинойс',19,11,'MW','security,economy',2,5],
+['IN','Индиана',11,-19,'MW','economy,taxes',3,5],['KS','Канзас',6,-16,'MW','taxes,economy',5,3],['KY','Кентукки',8,-30,'SE','health,economy',4,5],
+['LA','Луизиана',8,-22,'SE','climate,security',6,4],['MA','Массачусетс',11,25,'NE','health,climate',2,10],['MD','Мэриленд',10,30,'NE','health,economy',4,8],
+['ME','Мэн',4,7,'NE','health,economy',0,11],['MI','Мичиган',15,-1.5,'MW','economy,climate',2,7],['MN','Миннесота',10,4,'MW','health,economy',2,4],
+['MO','Миссури',10,-18,'MW','economy,security',4,4],['MS','Миссисипи',6,-18,'SE','health,security',6,5],['MT','Монтана',4,-20,'W','taxes,climate',2,2],
+['NC','Северная Каролина',16,-3,'SE','economy,health',5,6],['ND','Северная Дакота',3,-36,'MW','economy,climate',2,3],['NE','Небраска',5,-20,'MW','taxes,economy',4,3],
+['NH','Нью-Гэмпшир',4,3,'NE','taxes,economy',1,11],['NJ','Нью-Джерси',14,6,'NE','taxes,security',3,8],['NM','Нью-Мексико',5,6,'SW','immigration,health',5,2],
+['NV','Невада',6,-3,'W','economy,immigration',3,1],['NY','Нью-Йорк',28,13,'NE','taxes,security',2,8],['OH','Огайо',17,-11,'MW','economy,health',3,6],
+['OK','Оклахома',7,-34,'SW','taxes,security',6,3],['OR','Орегон',8,14,'PAC','climate,health',3,0],['PA','Пенсильвания',19,-1.5,'NE','economy,climate',3,7],
+['RI','Род-Айленд',4,14,'NE','health,economy',2,9],['SC','Южная Каролина',9,-18,'SE','security,economy',5,7],['SD','Южная Дакота',3,-29,'MW','taxes,immigration',3,3],
+['TN','Теннесси',11,-30,'SE','taxes,security',5,5],['TX','Техас',40,-14,'SW','immigration,security',7,3],['UT','Юта',6,-21,'W','taxes,health',4,1],
+['VA','Вирджиния',13,6,'SE','economy,security',4,7],['VT','Вермонт',3,31,'NE','climate,health',1,10],['WA','Вашингтон',12,18,'PAC','climate,economy',2,0],
+['WI','Висконсин',10,-.9,'MW','economy,health',2,6],['WV','Западная Вирджиния',4,-42,'SE','economy,health',4,6],['WY','Вайоминг',3,-46,'W','climate,taxes',3,2]
+];
+const STATES=RAW.map(r=>({code:r[0],name:r[1],ev:r[2],lean:r[0]==='DC'?r[3]:r[3]+1.5,region:r[4],issues:r[5].split(','),row:r[6],col:r[7]}));
+const S={};STATES.forEach(s=>S[s.code]=s);
+const REGIONS=['NE','SE','MW','SW','W','PAC'];
+function regionShare(id,reg){let a=0,b=0;STATES.forEach(s=>{if(stageOf(s.code)===id){b+=s.ev;if(s.region===reg)a+=s.ev}});return b?a/b:0}
+const regionEffect=(id,reg)=>{const sh=regionShare(id,reg);return .7*sh-.3*(1-sh)};
+
+/* ================= праймериз ================= */
+function mult(G,k){let m=1;G.team.forEach(id=>{const f=ADV[id].fx[k];if(f)m*=f});const pf=CANDS[G.side].fx[k];if(pf)m*=pf;return m}
+
+function newGame(side,diff){
+  const b=CANDS[side];
+  const me={id:'me',name:b.name,tag:'Вы',pos:50,accents:[],mo:0,charisma:b.stats.charisma,home:b.home,del:0,out:false,isMe:true};
+  const rivals=RIVALS[side].map(r=>Object.assign({},r,{accents:r.accents.slice(),mo:0,del:0,out:false}));
+  return {side,opSide:side==='D'?'R':'D',diff,phase:'setup',me,rivals,stats:Object.assign({},b.stats),funds:b.funds,team:[],stageIdx:0,unity:0,needHire:false,
+    ui:{acc:[],pos:50,hire:[]},plan:{tone:0,tactics:[]},estNoise:{},lastRes:null,convOut:null,vp:null,vpDeal:null,debates:[],stat:{ads:0,field:0,rally:0},stateRes:{},stageDel:{}};
+}
+function setupPrimaries(G,o){
+  G.me.accents=o.acc.slice();G.me.pos=o.pos;G.team=o.hire.slice();
+  G.phase='plan';beginPlan(G);
+}
+function activeCands(G){return [G.me].concat(G.rivals.filter(r=>!r.out))}
+function themeBonus(G,c,issue,st){
+  const base=PARTIES[G.side].base[issue]||0;
+  return (.25+.45*base)*(st.hot.indexOf(issue)>=0?1.3:.6)*(c.accents.indexOf(issue)>=0?1.15:.75)*.65;
+}
+function beginPlan(G){
+  G.plan={tone:0,tactics:[],theme:null,region:null,target:null};G.estNoise={};
+  activeCands(G).forEach(c=>G.estNoise[c.id]=gauss()*.55*(c.isMe&&G.team.includes('strategist')?.6:1));
+}
+function baseScore(G,c,st){
+  const party=PARTIES[G.side];
+  const posFit=1-Math.abs(c.pos-st.ep)/60;
+  let fit=0;c.accents.forEach(a=>{fit+=(party.base[a]||0)*(st.hot.includes(a)?1.5:1)});fit/=3;
+  let s=2.4*posFit+2.2*fit+.12*c.charisma+.9*c.mo+(c.home===st.id?.6:0);
+  if(c.isMe&&G.team.includes('strategist'))s+=.35*fit;
+  if(!c.isMe)s+=DIFF[G.diff].riv;
+  return s;
+}
+const softShares=sc=>{const T=1.5,ex=sc.map(s=>Math.exp(s/T)),t=sum(ex);return ex.map(e=>e/t)};
+const threshold=sh=>{const r=sh.map(v=>v<.15?0:v),t=sum(r);return t===0?sh:r.map(v=>v/t)};
+function allocate(sh,total){
+  const raw=sh.map(s=>s*total),fl=raw.map(Math.floor);let rem=total-sum(fl);
+  raw.map((v,i)=>[v-fl[i],i]).sort((a,b)=>b[0]-a[0]).forEach(([,i])=>{if(rem>0){fl[i]++;rem--}});
+  return fl;
+}
+function estimate(G){
+  const st=STAGES[G.stageIdx],cs=activeCands(G);
+  const sh=threshold(softShares(cs.map(c=>baseScore(G,c,st)+(G.estNoise[c.id]||0))));
+  return cs.map((c,i)=>({c,share:sh[i]}));
+}
+function planCost(G){return sum(G.plan.tactics.map(k=>TACT[k].cost))+(G.plan.region?REG_COST:0)}
+function resolveStage(G){
+  const st=STAGES[G.stageIdx],plan=G.plan,notes=[];
+  G.me.pos=clamp(G.me.pos+plan.tone*8,5,95);
+  const tc=plan.tactics.slice(0,2);
+  const regCost=plan.region?REG_COST:0;
+  G.funds-=sum(tc.map(k=>TACT[k].cost))+regCost;
+  tc.forEach(k=>{if(k==='ads')G.stat.ads++;if(k==='ground')G.stat.field++;if(k==='rally')G.stat.rally++});
+  const cs=activeCands(G),bonus={};cs.forEach(c=>bonus[c.id]=0);
+  const others=cs.filter(c=>!c.isMe);
+  const rank=c=>c.del+c.mo*20;
+  const leader=others.slice().sort((a,b)=>rank(b)-rank(a))[0];
+  const tgt=others.find(r=>r.id===plan.target)||leader;
+  tc.forEach(k=>{
+    if(k==='attack'){
+      if(tgt){bonus[tgt.id]-=.9;G.unity-=.25;
+        if(Math.random()<.25*mult(G,'crisis')+.1){bonus.me-=.5;notes.push('Негативная кампания обернулась против вас: избиратели устали от грязи.')}
+        else notes.push('Ваша атака на '+tgt.name+' попала в цель.');}
+    }else if(k==='oppo'){
+      if(tgt){
+        if(Math.random()<.65){bonus[tgt.id]-=1.1;notes.push('Досье на '+tgt.name+' сработало: пресса обсуждает его прошлое.')}
+        else{bonus.me-=.3*mult(G,'crisis');notes.push('Досье на '+tgt.name+' оказалось пустышкой, а утечка ударила по вам.')}
+      }
+    }else if(k==='fund'){
+      const g=7*mult(G,'fundraise');G.funds+=g;notes.push('Сбор средств принёс '+money(g)+'.');
+    }else if(k==='debate'){
+      const e=((G.stats.charisma+G.stats.policy)/2-6.5)*.3+gauss()*.7;
+      const v=clamp(e,-.8,1.3)*XW[st.id].debate;
+      bonus.me+=v>0?v*mult(G,'debate'):v;
+      notes.push(v>.5?'Вы убедительно выступили на теледебатах.':v>0?'Дебаты прошли ровно, вы чуть опередили соперников.':'Дебаты прошли неудачно: вы выглядели неуверенно.');
+    }else if(k==='endorse'){
+      bonus.me+=TACT.endorse.v*XW[st.id].endorse;
+      notes.push(pick(['Вас поддержали местные профсоюзы.','За вас высказался влиятельный губернатор.','Крупная общественная организация выступила в вашу пользу.']));
+    }else bonus.me+=TACT[k].v*st.w[k]*mult(G,k);
+  });
+  if(plan.theme){
+    bonus.me+=themeBonus(G,G.me,plan.theme,st)*mult(G,'accent');
+    notes.push('Тема этапа «'+ISSUES[plan.theme]+'» '+(st.hot.indexOf(plan.theme)>=0?'попала в повестку избирателей.':'вызвала умеренный интерес.'));
+  }
+  if(plan.region){
+    const e=regionEffect(st.id,plan.region);bonus.me+=e;
+    notes.push('Региональный акцент: '+RN[plan.region]+(e>0?'. Расчёт оправдался.':'. Для этого этапа регион был слишком мал.'));
+  }
+  others.forEach(r=>{
+    let eff=0;
+    shuffle(['ads','ground','rally']).slice(0,2).forEach(k=>{const t=TACT[k];if(r.money>=t.cost){r.money-=t.cost;eff+=t.v*st.w[k]}});
+    bonus[r.id]+=eff*.85;
+    bonus[r.id]+=Math.max.apply(null,r.accents.map(a=>themeBonus(G,r,a,st)))*.9;
+    if(r.money>=5&&Math.random()<.28){
+      const tg=cs.filter(c=>c.id!==r.id).sort((a,b)=>rank(b)-rank(a))[0];
+      if(tg){r.money-=5;bonus[tg.id]-=.8;if(tg.isMe)notes.push(r.name+' запустил против вас негативную рекламу.')}
+    }
+  });
+  const sc=cs.map(c=>baseScore(G,c,st)+bonus[c.id]+gauss()*.45);
+  const sh=threshold(softShares(sc));
+  const dels=allocate(sh,st.del);
+  const rows=cs.map((c,i)=>{c.del+=dels[i];return {c,share:sh[i],got:dels[i]}});
+  rows.forEach(r=>{r.c.mo=clamp(.5*r.c.mo+(r.share-1/cs.length)*2.4,-1.5,1.5)});
+  const mine=rows.find(r=>r.c.isMe);
+  const inc=(4+mine.share*12)*mult(G,'income');
+  G.funds+=inc;
+  others.forEach(r=>{const row=rows.find(x=>x.c===r);r.money+=4+row.share*10});
+  const winner=rows.slice().sort((a,b)=>b.share-a.share)[0];
+  notes.unshift(winner.c.isMe?'Вы выигрываете этап.':winner.c.name+' выигрывает этап.');
+  const total=sum(activeAll(G).map(c=>c.del));
+  if(G.stageIdx>=2){
+    G.rivals.forEach(r=>{
+      if(!r.out&&r.del/total<.14){
+        r.out=true;notes.push(r.name+' снимает кандидатуру.');
+        const rem=activeCands(G).sort((a,b)=>Math.abs(a.pos-r.pos)-Math.abs(b.pos-r.pos))[0];
+        if(rem){rem.mo=clamp(rem.mo+.5,-1.5,1.5);if(rem.isMe)notes.push('Сторонники '+r.name+' переходят к вам.')}
+      }
+    });
+  }
+  const sres={};
+  STATES.forEach(s=>{
+    if(stageOf(s.code)!==st.id)return;
+    let bi=0,bv=-9;cs.forEach((c,i)=>{const v=sh[i]+gauss()*.07;if(v>bv){bv=v;bi=i}});
+    sres[s.code]=cs[bi].id;
+  });
+  G.stateRes=Object.assign(G.stateRes||{},sres);
+  G.stageDel=G.stageDel||{};G.stageDel[st.id]=rows.map(r=>({id:r.c.id,got:r.got}));
+  G.lastRes={stage:st,rows:rows.map(r=>({c:r.c,share:r.share,got:r.got,cum:r.c.del})),notes,inc,spent:sum(tc.map(k=>TACT[k].cost))+regCost,total};
+  G.stageIdx++;
+  G.needHire=(G.stageIdx===2||G.stageIdx===4)&&G.team.length<5;
+  G.phase='stageRes';
+  return G.lastRes;
+}
+const activeAll=G=>[G.me].concat(G.rivals);
+function hireAdv(G,id){G.team.push(id);G.needHire=false;G.phase='plan';beginPlan(G)}
+
+/* ---- съезд ---- */
+function convStatus(G){
+  const all=activeAll(G),total=sum(all.map(c=>c.del)),maj=Math.floor(total/2)+1;
+  const rivals=G.rivals.slice().sort((a,b)=>b.del-a.del);
+  const best=rivals[0];
+  const kind=G.me.del>=maj?'majority':G.me.del>best.del?'lead':'trail';
+  return {total,maj,kind,best,second:rivals[1]};
+}
+function adoptAccent(G,rv){
+  const party=PARTIES[G.side];
+  const cand=rv.accents.find(a=>!G.me.accents.includes(a));
+  if(!cand)return;
+  const weakest=G.me.accents.slice().sort((a,b)=>(party.base[a]||0)-(party.base[b]||0))[0];
+  G.me.accents[G.me.accents.indexOf(weakest)]=cand;
+}
+function convChance(G,key){
+  if(key==='fight')return clamp(.3+.1*G.me.mo,.15,.5);
+  if(key==='deal')return .6;
+  return 1;
+}
+function convChoose(G,key){
+  const cs=convStatus(G);let ok=true,text='';
+  const rv=cs.best;
+  if(cs.kind==='majority'){G.unity+=.4;text='Вы набираете большинство делегатов в первом туре голосования. Съезд превращается в коронацию.'}
+  else if(cs.kind==='lead'){
+    if(key==='dealvp'){G.unity+=.5;G.vpDeal=rv;text='Вы обещаете вице-президентство '+rv.name+'. Её делегаты голосуют за вас.'}
+    else if(key==='dealplat'){G.unity+=.3;G.me.pos=clamp(G.me.pos+Math.sign(rv.pos-G.me.pos)*8,5,95);adoptAccent(G,rv);text='Вы включаете в платформу предложения '+rv.name+'. Партия объединяется, но ваш образ немного смещается.'}
+    else{G.unity-=.5;text='Вы идёте до конца и побеждаете, но на съезде остаётся обида.'}
+  }else{
+    if(Math.random()<convChance(G,key)){
+      if(key==='fight'){G.unity-=.6;text='Вы выигрываете борьбу за делегатов кулуарами. Победа есть, но партия расколота.'}
+      else{G.unity-=.2;G.me.pos=clamp(G.me.pos+Math.sign(rv.pos-G.me.pos)*10,5,95);adoptAccent(G,rv);text='Сделка работает: вы принимаете главные условия '+rv.name+' и выходите на первое место.'}
+    }else{ok=false;text=key==='fight'?'Делегаты не поддаются. Номинацию получает '+rv.name+'.':'Сделка срывается: переговорщики не договорились. Номинацию получает '+rv.name+'.'}
+  }
+  G.convOut={ok,text};
+  G.phase=ok?'convDone':'out';
+  return G.convOut;
+}
+function vpOptions(G){
+  if(G.vpDeal){const r=G.vpDeal;return [{id:'rival',name:r.name,role:r.tag+' (по сделке)',home:r.vp,deb:.4,unity:.5,desc:'Условие сделки на съезде. Её сторонники теперь работают на вас.'}]}
+  return VPS[G.side];
+}
+function pickVP(G,id){
+  G.vp=vpOptions(G).find(v=>v.id===id);
+  G.unity+=G.vp.unity;
+  initGeneral(G);
+}
+
+/* ================= осенняя кампания ================= */
+const posLabel=p=>p<25?'Яркий выразитель базы':p<45?'Ближе к базе':p<=55?'Золотая середина':p<75?'Ближе к центру':'Откровенный центрист';
+function posEffect(b,pos){if(b>=8)return(50-pos)/50*1.2;if(b<=-8)return(pos-50)/50*.5;return(pos-50)/50*1.3}
+function initGeneral(G){
+  G.dir=G.side==='D'?1:-1;
+  G.st={};STATES.forEach(s=>G.st[s.code]={persist:0,ad:0,opAd:0,ground:0,rallies:0,opGround:0,opRal:0});
+  G.opAccents=G.side==='D'?['immigration','security','economy']:['health','climate','economy'];
+  G.opPos=clamp(50+rnd(-12,12),30,70);
+  const d=DIFF[G.diff];
+  G.env=rnd(-2,2)+d.env;
+  G.nat=G.env+G.unity*.8+(G.me.charisma-6.5)*.12+G.me.mo*.35;
+  G.spentPrimary=G.funds;
+  G.funds=45+Math.max(0,G.funds)*.5;
+  G.week=1;G.prep=0;G.log=[];G.weekLog=[];G.sel=null;G.fundraised=0;
+  G.opFunds=d.of;G.opEff=d.oe;G.opPrep=0;G.opLastSpent=0;G.opSeen=0;G.opLastAtk=-9;G.view='avg';
+  const sg=Math.random()<.5?1:-1;
+  G.house={mine:rnd(.2,1),opp:-rnd(1.5,3),m1:sg*rnd(.8,1.9),m2:-sg*rnd(.8,1.9),i1:gauss()*.6,i2:gauss()*.7,track:rnd(0,.4)};
+  G.houseEst={};Object.keys(G.house).forEach(k=>G.houseEst[k]=G.house[k]+gauss()*.45);
+  G.pollBias=gauss()*1.6;G.regBias={};REGIONS.forEach(r=>G.regBias[r]=gauss()*1.1);
+  G.polls={};SRC.forEach(r=>G.polls[r.id]={});G.prevM=null;
+  const pool=shuffle(['donor','hurricane','factories','hotmic','endorsement','econ','border','party','cyber','celeb']);
+  G.evPlan={1:pool[0],2:pool[1],3:pool[2],4:pool[3],6:pool[4],7:pool[5],9:'surprise'};
+  G.phase='general';
+  startWeek(G);
+}
+function accentAdj(G,s){
+  let v=0;
+  s.issues.forEach(i=>{
+    if(G.me.accents.includes(i))v+=.5*ownMod(G.side,i)*mult(G,'accent');
+    if(G.opAccents.includes(i))v-=.5*ownMod(G.opSide,i);
+  });
+  return v;
+}
+function vpAdj(G,s){
+  if(!G.vp)return 0;
+  if(G.vp.home===s.code)return 2;
+  return S[G.vp.home].region===s.region?.6:0;
+}
+function margin(G,s){
+  const x=G.st[s.code],b=G.dir*s.lean;
+  return b+G.nat+accentAdj(G,s)+posEffect(b,G.me.pos)-posEffect(-b,G.opPos)+vpAdj(G,s)+x.persist+x.ad-x.opAd+Math.min(2.4,x.ground*.6*mult(G,'ground'))-Math.min(2.4,x.opGround*.6*G.opEff);
+}
+const SRC=[
+  {id:'mine',n:'Внутренний опрос вашего штаба',s:'Ваш штаб',sd:2.0,lag:0,cov:.7,note:'Методика надёжная, но штаб любит хорошие новости.'},
+  {id:'opp',n:'Опрос штаба соперника (публикуется выборочно)',s:'Штаб соперника',sd:2.4,lag:0,cov:.4,note:'Выходит там, где соперник выглядит хорошо.'},
+  {id:'m1',n:'Телеканал «Девятый»',s:'«Девятый»',sd:3.0,lag:.5,cov:.55,note:'Телефонные опросы, данные запаздывают.'},
+  {id:'m2',n:'Газета «Вестник Нации»',s:'«Вестник Нации»',sd:3.2,lag:.5,cov:.55,note:'Онлайн-панель, данные запаздывают.'},
+  {id:'i1',n:'Институт Харлоу (независимый)',s:'Институт Харлоу',sd:2.1,lag:.25,cov:.5,note:'Независимое агентство с хорошей репутацией.'},
+  {id:'i2',n:'Центр Эверетта (независимый)',s:'Центр Эверетта',sd:2.6,lag:.25,cov:.55,note:'Независимое агентство, малые выборки.'},
+  {id:'track',n:'Заказной опрос вашего штаба',s:'Заказной опрос',sd:2.0,lag:0,cov:0,note:'Свежий опрос, заказанный вами.'}
+];
+const SRCB={};SRC.forEach(r=>SRCB[r.id]=r);
+function pollValue(G,s,r,cur,prev){
+  const base=(r.lag&&prev!=null)?(1-r.lag)*cur+r.lag*prev:cur;
+  const sd=r.sd*((r.id==='mine'||r.id==='track')?mult(G,'poll'):1)*(1+(s.ev<6?.35:0));
+  return base+G.pollBias+G.regBias[s.region]*.7+G.house[r.id]+gauss()*sd;
+}
+function pollsRefresh(G){
+  const first=G.week===1,prev=G.prevM,cur={};
+  STATES.forEach(s=>{
+    const m=margin(G,s);cur[s.code]=m;
+    SRC.forEach(r=>{
+      if(r.id==='track')return;
+      let p=clamp(r.cov*(.55+.45*Math.exp(-Math.abs(m)/12))+s.ev*.012,.12,.95);
+      if(r.id==='opp')p*=(m<3?1.5:.4);
+      if(first)p=Math.min(.95,p+.25);
+      if(Math.random()<p)G.polls[r.id][s.code]={v:pollValue(G,s,r,m,prev?prev[s.code]:null),w:G.week};
+    });
+  });
+  G.prevM=cur;
+}
+function pollsFor(G,code){
+  const out=[];
+  SRC.forEach(r=>{const p=G.polls[r.id][code];if(p)out.push({r,v:p.v,age:G.week-p.w})});
+  return out.sort((a,b)=>a.age-b.age);
+}
+function aggOf(G,s){
+  const it=pollsFor(G,s.code);if(!it.length)return null;
+  let ws=0,sv=0,age=99;
+  it.forEach(x=>{
+    const sd=x.r.sd*((x.r.id==='mine'||x.r.id==='track')?mult(G,'poll'):1);
+    const w=Math.exp(-x.age/3)/(sd*sd);ws+=w;sv+=w*x.v;age=Math.min(age,x.age);
+  });
+  const fr=it.filter(x=>x.age<=3),v=sv/ws;
+  const lo=fr.length?Math.min.apply(null,fr.map(x=>x.v)):v,hi=fr.length?Math.max.apply(null,fr.map(x=>x.v)):v;
+  return {v,age,n:it.length,lo,hi,dis:fr.length>1&&hi-lo>=6,items:it};
+}
+function viewVal(G,s,src){
+  if(src==='avg')return aggOf(G,s);
+  const p=G.polls[src][s.code];
+  return p?{v:p.v,age:G.week-p.w,dis:false}:null;
+}
+const pollOf=(G,s)=>{const a=aggOf(G,s);return a?a.v:0};
+function tierOf(G,p){
+  const a=Math.abs(p);if(a<3)return 't0';
+  const party=(p>0?G.side:G.opSide).toLowerCase();
+  return party+(a<6?1:a<12?2:3);
+}
+function projection(G,src){
+  src=src||'avg';let me=0,op=0,toss=0,unk=0;
+  STATES.forEach(s=>{const a=viewVal(G,s,src);if(!a){unk+=s.ev;return}if(a.v>=3)me+=s.ev;else if(a.v<=-3)op+=s.ev;else toss+=s.ev});
+  return {me,op,toss,unk};
+}
+function finalPollRows(G){
+  return [{id:'avg',n:'Среднее по опросам'}].concat(SRC.filter(r=>r.id!=='track')).map(r=>{const p=projection(G,r.id);return {n:r.n,me:p.me,op:p.op,q:p.toss+p.unk}});
+}
+function suggest(G){
+  return STATES.map(s=>{const a=aggOf(G,s);return {s,w:s.ev*Math.exp(-Math.abs(a?a.v:0)/5)}}).sort((a,b)=>b.w-a.w).slice(0,4).map(x=>x.s);
+}
+const adCost=s=>2.5+s.ev*.45;
+const COST={rally:1.5,field:3.5,attack:8,speech:.5,track:1.2};
+const fail=m=>({ok:false,msg:m});
+function say(G,t){G.weekLog.push(t)}
+
+function actAd(G,code){
+  const s=S[code],c=adCost(s);if(G.funds<c)return fail('Не хватает средств.');
+  const x=G.st[code];G.funds-=c;
+  x.ad=Math.min(6,x.ad+2*mult(G,'ads')/(1+x.ad*.25));G.stat.ads++;
+  const m='Реклама в штате '+s.name+'.';say(G,m);return {ok:true,msg:m};
+}
+function actRally(G,code){
+  const s=S[code];if(G.ap<1)return fail('Нет свободных дней.');if(G.funds<COST.rally)return fail('Не хватает средств.');
+  const x=G.st[code];G.ap--;G.funds-=COST.rally;
+  const k=mult(G,'rally')/(1+x.rallies*.5);
+  x.persist=Math.min(6,x.persist+.7*k);x.ad=Math.min(6,x.ad+1.5*k);x.rallies++;
+  STATES.forEach(o=>{if(o.region===s.region&&o.code!==code)G.st[o.code].persist=Math.min(6,G.st[o.code].persist+.12*k)});
+  G.stat.rally++;
+  const m='Митинг в штате '+s.name+'.';say(G,m);return {ok:true,msg:m};
+}
+function actField(G,code){
+  const s=S[code],x=G.st[code];
+  if(x.ground>=3)return fail('Штаб уже на максимуме.');if(G.funds<COST.field)return fail('Не хватает средств.');
+  G.funds-=COST.field;x.ground++;G.stat.field++;
+  const m='Новый штаб в штате '+s.name+' (уровень '+x.ground+').';say(G,m);return {ok:true,msg:m};
+}
+function actFund(G){
+  if(G.ap<1)return fail('Нет свободных дней.');if(G.fundraised>=2)return fail('Доноры устали: два сбора в неделю максимум.');
+  const g=8*mult(G,'fundraise')*(G.fundraised?.6:1);G.ap--;G.funds+=g;G.fundraised++;
+  const m='Сбор средств принёс '+money(g)+'.';say(G,m);return {ok:true,msg:m};
+}
+function actSpeech(G,issue){
+  if(G.ap<1)return fail('Нет свободных дней.');if(G.funds<COST.speech)return fail('Не хватает средств.');
+  G.ap--;G.funds-=COST.speech;
+  STATES.forEach(s=>{if(s.issues.includes(issue)){const x=G.st[s.code];x.ad=Math.min(6,x.ad+1.1/(1+x.ad*.2))}});
+  G.nat+=.08;
+  const m='Программная речь: '+ISSUES[issue]+'.';say(G,m);return {ok:true,msg:m};
+}
+function actPrep(G){
+  if(G.ap<1)return fail('Нет свободных дней.');if(G.prep>=3)return fail('Вы готовы к дебатам максимально.');
+  G.ap--;G.prep++;const m='Подготовка к дебатам (уровень '+G.prep+').';say(G,m);return {ok:true,msg:m};
+}
+function actAttack(G){
+  if(G.funds<COST.attack)return fail('Не хватает средств.');
+  G.funds-=COST.attack;
+  if(Math.random()<.65){G.nat+=.7;const m='Атакующая реклама сработала: рейтинг соперника просел.';say(G,m);return {ok:true,msg:m}}
+  G.nat-=.5*mult(G,'crisis');const m='Атака обернулась против вас: избиратели недовольны негативом.';say(G,m);return {ok:true,msg:m};
+}
+function actTrack(G,code){
+  const s=S[code],t=G.polls.track[code];
+  if(t&&t.w===G.week)return fail('Опрос по этому штату уже заказан на этой неделе.');
+  if(G.funds<COST.track)return fail('Не хватает средств.');
+  G.funds-=COST.track;
+  G.polls.track[code]={v:pollValue(G,s,SRCB.track,margin(G,s),null),w:G.week};
+  const m='Заказан свежий опрос: '+s.name+'.';say(G,m);return {ok:true,msg:m};
+}
+function opponentTurn(G){
+  const d=DIFF[G.diff],oe=G.opEff,wl=11-G.week;
+  let days=G.week===10?4:3,total=0;
+  const noise={};STATES.forEach(s=>noise[s.code]=gauss()*1.8);
+  const view=s=>margin(G,s)+noise[s.code];
+  const dens=m=>Math.exp(-m*m/72);
+  const did={ad:[],field:[],rally:[]};
+  /* дебаты и деньги */
+  if((G.week===4||G.week===7)&&days>0){G.opPrep=Math.min(3,G.opPrep+1);days--;say(G,'Соперник готовится к дебатам.')}
+  let raised=0;
+  while(G.opFunds<14&&days>0&&G.week<9&&raised<2){const g=7*Math.sqrt(oe)*(raised?.6:1);G.opFunds+=g;days--;raised++}
+  if(raised)say(G,'Соперник проводит сборы средств.');
+  const budget=G.week>=10?G.opFunds:Math.min(G.opFunds,G.opFunds/wl*(wl>3?1.3:1.6));
+  let spent=0,atk=false;
+  for(let it=0;it<16;it++){
+    let best=null;
+    const consider=o=>{if(o.cost<=budget-spent+1e-9&&o.cost<=G.opFunds+1e-9&&o.val>.12&&(!best||o.val>best.val))best=o};
+    let tot=0;
+    STATES.forEach(s=>{
+      const m=view(s),ev=s.ev*dens(m),x=G.st[s.code],ac=adCost(s);tot+=ev;
+      consider({k:'ad',s,cost:ac,val:ev*2*oe/(1+x.opAd*.25)/ac});
+      if(x.opGround<3)consider({k:'field',s,cost:3.5,val:ev*.6*oe*Math.min(wl,6)*.8/3.5});
+      if(days>0)consider({k:'rally',s,cost:1.5,val:ev*(1/(1+x.opRal*.5))*oe*(.7*Math.min(wl,6)*.7+1.5)/3.5});
+    });
+    if(!atk&&G.week>=2&&G.week-G.opLastAtk>=3)consider({k:'atk',cost:8,val:tot*.28*oe/8*.6});
+    if(!best)break;
+    G.opFunds-=best.cost;spent+=best.cost;
+    const s=best.s,x=s?G.st[s.code]:null;
+    if(best.k==='ad'){x.opAd=Math.min(6,x.opAd+2*oe/(1+x.opAd*.25));did.ad.push(s.code)}
+    else if(best.k==='field'){x.opGround++;did.field.push(s.code)}
+    else if(best.k==='rally'){
+      days--;const k=oe/(1+x.opRal*.5);
+      x.persist=Math.max(-6,x.persist-.7*k);x.opAd=Math.min(6,x.opAd+1.5*k);x.opRal++;
+      STATES.forEach(o=>{if(o.region===s.region&&o.code!==s.code)G.st[o.code].persist=Math.max(-6,G.st[o.code].persist-.12*k)});
+      did.rally.push(s.code);
+    }else{atk=true;G.opLastAtk=G.week;
+      if(Math.random()<.65){G.nat-=.7;say(G,'Соперник запустил атакующий ролик против вас.')}
+      else{G.nat+=.5;say(G,'Атака соперника на вас обернулась против него самого.')}
+    }
+  }
+  total=spent;
+  const uniq=a=>a.filter((c,i)=>a.indexOf(c)===i).join(', ');
+  const parts=[];
+  if(did.ad.length)parts.push('реклама: '+uniq(did.ad));
+  if(did.field.length)parts.push('новые штабы: '+uniq(did.field));
+  if(did.rally.length)parts.push('митинги: '+uniq(did.rally));
+  say(G,parts.length?'Лагерь соперника — '+parts.join('; ')+'.':'Соперник экономит деньги на этой неделе.');
+  /* случайные события в лагере соперника */
+  if(Math.random()<.32){
+    const good=Math.random()<.5+(oe-1)*.3;
+    if(good){G.nat-=rnd(.2,.45);say(G,pick(['Соперник удачно выступил в прямом эфире, его рейтинг растёт.','Крупная ассоциация объявила о поддержке соперника.','Соперник собрал большую аудиторию на митинге.']))}
+    else{G.nat+=rnd(.2,.4);say(G,pick(['Соперник оговорился на встрече с избирателями.','В штабе соперника разгорелся кадровый скандал.','Соперник провалил интервью, пресса пишет об этом.']))}
+  }
+  G.opLastSpent=total;G.opSeen=Math.round(total*rnd(.8,1.25));
+}
+function endWeek(G){
+  opponentTurn(G);
+  STATES.forEach(s=>{const x=G.st[s.code];x.ad*=.75;x.opAd*=.75});
+  G.funds+=14*mult(G,'income');
+  G.opFunds+=DIFF[G.diff].oi*(1+clamp(-G.nat/10,-.2,.2));
+  G.log.unshift({w:G.week,items:G.weekLog.slice()});G.log=G.log.slice(0,4);G.weekLog=[];
+  if(G.week===10)G.finalPolls=finalPollRows(G);
+  G.week++;
+  if(G.week>10){startNight(G);return}
+  startWeek(G);
+}
+function startWeek(G){
+  G.ap=G.week===10?4:3;G.fundraised=0;pollsRefresh(G);G.pending=null;
+  if(G.week===5||G.week===8){
+    const ks=['attack','policy','charm'],op=pick(ks);
+    const hint=Math.random()<(G.team.includes('strategist')?.8:.5)?op:pick(ks.filter(k=>k!==op));
+    G.pending={type:'debate',n:G.week===5?1:2,op,hint,out:null};
+  }else if(G.evPlan[G.week])G.pending={type:'event',id:G.evPlan[G.week],out:null};
+  if(!G.sel)G.sel=suggest(G)[0].code;
+}
+
+/* ---- события ---- */
+const shift=(G,codes,v)=>codes.forEach(c=>{G.st[c].persist=clamp(G.st[c].persist+v,-6,6)});
+const hit=(G,v)=>{G.nat-=v*mult(G,'crisis')};
+const spend=(G,v)=>{G.funds=Math.max(0,G.funds-v)};
+const IND=['OH','PA','MI','WI','IN'];
+const EVENTS={
+  donor:{t:'Скандал вокруг крупного донора',x:'Газета сообщила, что один из ваших крупнейших спонсоров связан с офшорными схемами. Журналисты звонят без остановки.',c:[
+    {t:'Вернуть деньги и извиниться',h:'−$5 млн. Скандал быстро уйдёт.',run:G=>{spend(G,5);G.nat+=.1;return 'Вы вернули деньги. История закрыта за два дня.'}},
+    {t:'Отмолчаться',h:'Дёшево, но можно проиграть.',run:G=>{if(Math.random()<.55){hit(G,.9);return 'Молчание восприняли как признание вины.'}return 'Повезло: новость вытеснил другой сюжет.'}},
+    {t:'Обвинить прессу в травле',h:'База довольна, центр морщится.',run:G=>{G.funds+=4;hit(G,.3);return 'Сторонники прислали пожертвования, но независимые избиратели насторожились.'}}]},
+  hurricane:{t:'Ураган на побережье Залива',x:'Стихия обрушилась на Флориду, Луизиану, Миссисипи и Алабаму. Страна смотрит, как вы отреагируете.',c:[
+    {t:'Лично приехать в зону бедствия',h:'Теряете один день на этой неделе.',run:G=>{G.ap=Math.max(0,G.ap-1);shift(G,['FL','LA','MS','AL'],1.2);G.nat+=.2;if(Math.random()<.2){hit(G,.4);return 'Вы помогли людям, но неудачная фраза перед камерами испортила эффект.'}return 'Фото с волонтёрами обошли все газеты.'}},
+    {t:'Отправить помощь через штаб',h:'−$4 млн, небольшой эффект.',run:G=>{spend(G,4);shift(G,['FL','LA','MS','AL'],.5);return 'Помощь дошла до людей. О ней написали региональные издания.'}},
+    {t:'Не менять график',h:'Риск обвинений в равнодушии.',run:G=>{if(Math.random()<.3){hit(G,.3);return 'Оппоненты упрекают вас в равнодушии.'}return 'Критики почти не заметили.'}}]},
+  factories:{t:'Закрытие заводов в промышленных штатах',x:'Тысячи рабочих в Огайо, Пенсильвании, Мичигане, Висконсине и Индиане теряют работу.',c:[
+    {t:'Пообещать пакет защиты рабочих мест',h:'−$2 млн, заметный плюс в регионе.',run:G=>{spend(G,2);shift(G,IND,1);return 'Обещания услышали: опросы в регионе улучшились.'}},
+    {t:'Встретиться с профсоюзами',h:'Лучше работает у демократов.',run:G=>{shift(G,IND,G.side==='D'?1.3:.5);if(G.side==='R')hit(G,.2);return G.side==='D'?'Лидеры профсоюзов выступили на вашей стороне.':'Профсоюзы приняли вас прохладно, но жест оценили.'}},
+    {t:'Сослаться на рыночные силы',h:'Деньги от бизнеса, потери в регионе.',run:G=>{G.funds+=3;shift(G,IND,-.5);return 'Бизнес оценил откровенность, рабочие города нет.'}}]},
+  hotmic:{t:'Горячий микрофон',x:'Включённый микрофон записал вашу резкую реплику о части избирателей. Запись разлетается по сети.',c:[
+    {t:'Извиниться публично',h:'Небольшой, но верный урон.',run:G=>{hit(G,.3);return 'Извинение приняли. Ущерб минимален.'}},
+    {t:'Заявить, что слова вырваны из контекста',h:'Орёл или решка.',run:G=>{if(Math.random()<.5){hit(G,.9);return 'Полная запись только ухудшила положение.'}return 'Журналисты поверили вашей версии, тема закрылась.'}},
+    {t:'Пойти в контратаку',h:'Зависит от вашей стойкости.',run:G=>{if(Math.random()<G.stats.resilience/10+.1){G.nat+=.2;return 'Контратака удалась: теперь обсуждают соперника.'}hit(G,.8);return 'Контратака провалилась.'}}]},
+  endorsement:{t:'Влиятельная организация предлагает поддержку',x:'Крупное объединение готово выступить за вас, но требует уступок в вашей риторике.',c:[
+    {t:'Принять поддержку',h:'Плюс в штатах Среднего Запада, позиция смещается к базе.',run:G=>{shift(G,['MI','WI','MN','OH','PA','IA'],1);G.me.pos=clamp(G.me.pos-6,5,95);return 'Организация мобилизует своих членов. Ваша риторика стала острее.'}},
+    {t:'Отказаться',h:'Позиция ближе к центру.',run:G=>{G.me.pos=clamp(G.me.pos+4,5,95);G.nat+=.15;return 'Отказ подчеркнул вашу независимость.'}},
+    {t:'Запросить паузу',h:'Ничего не меняется.',run:G=>'Вы выиграли время, но ничего не получили.'}]},
+  econ:{t:'Новые данные по экономике',x:'Статистика показала рост цен и замедление найма. Все обсуждают, чей это провал.',c:[
+    {t:'Выступить с планом',h:'Один день. Тема сильнее, если «Экономика» в ваших акцентах.',run:G=>{G.ap=Math.max(0,G.ap-1);STATES.forEach(s=>{if(s.issues.includes('economy'))G.st[s.code].ad=Math.min(6,G.st[s.code].ad+1)});G.nat+=G.me.accents.includes('economy')?.5:.2;return 'План встретили доброжелательно.'}},
+    {t:'Переключиться на другую тему',h:'Ничего не теряете.',run:G=>'Вы уклонились от темы, пресса почти не заметила.'},
+    {t:'Обвинить оппонента',h:'40% риска ответного удара.',run:G=>{if(Math.random()<.4){hit(G,.4);return 'Оппонент ответил жёстче: обмен упрёками вам не помог.'}G.nat+=.15;return 'Упрёк закрепился в новостях.'}}]},
+  border:{t:'Кризис на границе',x:'Тысячи мигрантов у границы. Аризона, Техас, Нью-Мексико и Невада ждут слов кандидатов.',c:[
+    {t:'Объявить жёсткие меры',h:'Выигрывает республиканец.',run:G=>{shift(G,['AZ','TX','NM','NV'],G.side==='R'?1:.2);G.nat+=G.side==='R'?.1:-.2;return G.side==='R'?'Ваша позиция совпала с настроением региона.':'Часть ваших сторонников недовольна.'}},
+    {t:'Предложить комплексную реформу',h:'Выигрывает демократ.',run:G=>{shift(G,['AZ','TX','NM','NV'],G.side==='D'?1:.2);G.nat+=G.side==='D'?.1:-.1;return G.side==='D'?'Реформа понравилась избирателям региона.':'База считает вас слишком мягким.'}}]},
+  party:{t:'Давление партийных деятелей',x:'Лидеры партии спорят: одни требуют жёсче, другие мягче. Просят определить курс на финиш.',c:[
+    {t:'Усилить риторику для базы',h:'Позиция −10, +$6 млн.',run:G=>{G.me.pos=clamp(G.me.pos-10,5,95);G.funds+=6;return 'База ликует, доноры открывают кошельки.'}},
+    {t:'Сместить акцент к центру',h:'Позиция +10, −$3 млн.',run:G=>{G.me.pos=clamp(G.me.pos+10,5,95);spend(G,3);return 'Колеблющиеся прислушались, активисты ворчат.'}},
+    {t:'Остаться на курсе',h:'Небольшой плюс за последовательность.',run:G=>{G.nat+=.15;return 'Вас хвалят за последовательность.'}}]},
+  cyber:{t:'Фейк в соцсетях',x:'Подделанное видео с вашим кандидатом набирает миллионы просмотров.',c:[
+    {t:'Опровергнуть через СМИ',h:'−$3 млн.',run:G=>{spend(G,3);hit(G,.2);return 'Редакции показали подделку. Эффект ограничен.'}},
+    {t:'Подать иск и привлечь внимание',h:'−$3 млн, небольшой плюс.',run:G=>{spend(G,3);G.nat+=.1;return 'Тема сменилась на обсуждение дезинформации.'}},
+    {t:'Проигнорировать',h:'Риск 50%.',run:G=>{if(Math.random()<.5){hit(G,.8);return 'Фейк разошёлся слишком широко.'}return 'Фейк быстро затух сам.'}}]},
+  celeb:{t:'Знаменитость готова выступить на митинге',x:'Популярный артист предлагает поддержку. Его фанаты есть везде, но его слова непредсказуемы.',c:[
+    {t:'Принять предложение',h:'70% на успех.',run:G=>{if(Math.random()<.7){G.nat+=.45;return 'Выступление собрало толпы и заголовки.'}hit(G,.6);return 'Артист произнёс неудачную шутку, страницы газет полны упрёков.'}},
+    {t:'Отказаться',h:'Ничего не меняется.',run:G=>'Вы вежливо отказались.'}]},
+  surprise:{t:'Октябрьский сюрприз',x:'За две недели до выборов в прессу утекли документы о вашем кандидате. Что в них, пока не ясно, но заголовки уже вышли.',c:[
+    {t:'Открыть всё и ответить на вопросы',h:'Болезненно, но честно.',run:G=>{hit(G,.5);G.nat+=.25;return 'Прозрачность сработала: уже через два дня разговор о другом.'}},
+    {t:'Контратаковать соперника',h:'−$8 млн, риск 50%.',run:G=>{spend(G,8);if(Math.random()<.5){G.nat+=.6;return 'Контратака перевела внимание на соперника.'}hit(G,.9);return 'Контратака выглядела как оправдание.'}},
+    {t:'Отказаться от комментариев',h:'Крупный урон.',run:G=>{hit(G,.8);return 'Молчание обернулось новыми слухами.'}}]}
+};
+function chooseEvent(G,i){
+  const p=G.pending,ev=EVENTS[p.id],c=ev.c[i];
+  p.out=c.run(G);say(G,ev.t+': '+c.t+'.');
+}
+const DEB={attack:{n:'Атаковать',d:'Давить на слабые места. Ваш козырь: стойкость.'},policy:{n:'Говорить по существу',d:'Цифры и планы. Ваш козырь: знание политики.'},charm:{n:'Рассказывать истории',d:'Эмоции и личный образ. Ваш козырь: харизма.'}};
+const BEATS={attack:'charm',policy:'attack',charm:'policy'};
+function doDebate(G,k){
+  const p=G.pending;
+  const stat=k==='attack'?G.stats.resilience:k==='policy'?G.stats.policy:G.stats.charisma;
+  let mine=stat+(G.vp?G.vp.deb:0)+G.prep*.7+(G.team.includes('coach')?mult(G,'debate'):0)+gauss()*1.1;
+  let rps=0;if(BEATS[k]===p.op)rps=2;else if(BEATS[p.op]===k)rps=-2;
+  mine+=rps;
+  const theirs=6.2+DIFF[G.diff].op*.6-.4+G.opPrep*.5+gauss()*1.1;
+  const d=mine-theirs;
+  G.nat+=clamp(d*.2,-1.5,1.5);if(d>0)G.funds+=5;
+  G.prep=0;G.opPrep=0;
+  G.debates.push({n:p.n,k,op:p.op,d,won:d>0});
+  p.out={d,rps,text:d>1.5?'Уверенная победа. Рейтинги пошли вверх.':d>0?'Вы чуть сильнее соперника.':d>-1.5?'Небольшой проигрыш: соперник выглядел увереннее.':'Тяжёлый вечер. Соперник вас переиграл.'};
+  say(G,'Дебаты №'+p.n+': '+(d>0?'победа':'поражение')+'.');
+}
+const dismiss=G=>{G.pending=null};
+
+/* ---- ночь выборов ---- */
+function computeElection(G){
+  const natErr=gauss()*1.6,reg={};REGIONS.forEach(r=>reg[r]=gauss()*1.4);
+  const res={};let me=0,op=0,pop=0;
+  STATES.forEach(s=>{
+    const m=margin(G,s)+natErr+reg[s.region]+gauss()*1.5;
+    res[s.code]={m,win:m>0};if(m>0)me+=s.ev;else op+=s.ev;pop+=s.ev*m;
+  });
+  let tie=false,winner=me>=270?'me':'op';
+  if(me===269){tie=true;winner=Math.random()<.5?'me':'op'}
+  return {res,me,op,tie,winner,pop:pop/538};
+}
+function startNight(G){
+  G.final=computeElection(G);
+  G.night={order:REGIONS.flatMap(r=>STATES.filter(s=>s.region===r).sort((a,b)=>a.name.localeCompare(b.name,'ru')).map(s=>s.code)),i:0};
+  G.phase='night';
+}
+
+/* ================= интерфейс ================= */
+const API={clamp,newGame,setupPrimaries,beginPlan,estimate,resolveStage,hireAdv,convStatus,convChoose,vpOptions,pickVP,initGeneral,margin,projection,pollOf,actAd,actRally,actField,actFund,actSpeech,actPrep,actAttack,endWeek,chooseEvent,doDebate,dismiss,startWeek,STATES,STAGES,TACT,EVENTS,PARTIES,ISSUES,CANDS,suggest,adCost,planCost,mult,themeBonus,regionEffect,regionShare,stageOf,actTrack,pollsRefresh,aggOf,SRC,opponentTurn,DIFF,finalPollRows};
+if(typeof module!=='undefined'&&module.exports)module.exports=API;
+if(typeof document==='undefined')return;
+
+const app=document.getElementById('app');
+let G=null;const UI={side:'D',diff:'normal'};let timer=null;
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const chy=(tag,txt)=>'<div class="chy"><div class="tag">'+tag+'</div><div class="txt">'+txt+'</div></div>';
+const dots=n=>'<span class="dots" aria-hidden="true">'+[1,2,3].map(i=>'<i class="'+(i<=n?'on':'')+'"></i>').join('')+'</span>';
+const sidecol=s=>s==='D'?'var(--blue)':'var(--red)';
+const colorOf=c=>c.isMe?'var(--me)':c.id==='r1'?'var(--c1)':'var(--c2)';
+
+function viewTitle(){
+  const cd=['D','R'].map(s=>{const c=CANDS[s];
+    return '<button class="opt'+(UI.side===s?' on':'')+'" style="--me:'+sidecol(s)+'" data-act="side" data-v="'+s+'" aria-pressed="'+(UI.side===s)+'"><div class="cand"><div class="party" style="background:'+sidecol(s)+'"></div>'
+    +'<span class="lbl">'+PARTIES[s].n+'</span><span class="t" style="font-size:26px">'+c.name+'</span><span class="s">'+c.title+'</span><span class="s" style="color:var(--text)">'+c.bio+'</span>'
+    +['charisma','policy','resilience'].map(k=>'<div class="stat"><span style="width:92px">'+({charisma:'Харизма',policy:'Политика',resilience:'Стойкость'})[k]+'</span><i><b style="width:'+c.stats[k]*10+'%"></b></i>'+c.stats[k]+'</div>').join('')
+    +'<span class="m">Старт: '+money(c.funds)+' · '+c.perk+'</span></div></button>'}).join('');
+  const df=Object.keys(DIFF).map(k=>'<button class="btn sm'+(UI.diff===k?' pri':'')+'" data-act="diff" data-v="'+k+'" aria-pressed="'+(UI.diff===k)+'">'+DIFF[k].n+'</button>').join('');
+  return '<div class="stack" style="--me:'+sidecol(UI.side)+';--me-d:'+(UI.side==='D'?'var(--blue-d)':'var(--red-d)')+'">'
+   +chy('Прямой эфир','<span>Политический симулятор выборов в США</span>')
+   +'<div class="hero"><h1>Гонка 270</h1><p style="max-width:60ch;font-size:17px">Выиграйте внутрипартийную борьбу, соберите команду и сформируйте образ кандидата. Затем десять недель осенней кампании за голоса выборщиков по всем штатам.</p>'
+   +'<div class="path"><span><b>1</b>Праймериз</span><span><b>2</b>Съезд и напарник</span><span><b>3</b>10 недель кампании</span><span><b>4</b>Ночь выборов</span></div></div>'
+   +'<div class="lbl">Выберите кандидата</div><div class="grid">'+cd+'</div>'
+   +'<div class="row"><span class="lbl">Сложность</span>'+df+'</div>'
+   +'<div><button class="btn pri big" data-act="start">Начать праймериз</button></div>'
+   +'<p class="hint" style="max-width:70ch">Кандидаты и соперники вымышленные. Выборщики, штаты и расклад сил близки к реальным. Победитель в штате забирает всех выборщиков.</p></div>';
+}
+
+function viewSetup(){
+  const u=G.ui,party=PARTIES[G.side];
+  const iss=Object.keys(ISSUES).map(k=>{
+    const w=party.base[k],on=u.acc.includes(k),own=OWNER[k]===G.side?'Ваша тема: сильнее осенью':OWNER[k]===null?'Нейтральная тема':'Тема соперника: слабее осенью';
+    return '<button class="opt'+(on?' on':'')+'" data-act="acc" data-v="'+k+'" aria-pressed="'+on+'"><span class="t">'+ISSUES[k]+'</span><span class="s">'+ISSUE_D[k]+'</span><span class="s" style="margin-top:8px">Важность для партийных избирателей '+dots(clamp(Math.round(w*3),1,3))+'</span><span class="m">'+own+'</span></button>'}).join('');
+  const adv=ADV_LIST.map(a=>{const on=u.hire.includes(a.id);
+    return '<button class="opt'+(on?' on':'')+'" data-act="adv" data-v="'+a.id+'" aria-pressed="'+on+'"><span class="t">'+a.role+'</span><span class="s" style="color:var(--text)">'+a.name+'</span><span class="s" style="margin-top:6px">'+a.d+'</span></button>'}).join('');
+  const ready=u.acc.length===3&&u.hire.length===2;
+  return '<div class="stack">'+chy('Штаб кандидата','<span><b>'+G.me.name+'</b></span><span>Фонд '+money(G.funds)+'</span>')
+   +'<h2>Образ кампании</h2><p class="dim" style="max-width:70ch">Образ формируется в праймериз и дальше идёт с вами до ноября. Темы, позиция и команда повлияют и на выбор партийцев, и на голоса осенью.</p>'
+   +'<div><h3>Три главные темы <span class="mono dim" style="font-size:14px">('+u.acc.length+'/3)</span></h3></div><div class="grid3">'+iss+'</div>'
+   +'<div><h3>Позиция в партии</h3></div><div class="card stack" style="gap:10px"><div class="row" style="justify-content:space-between"><span class="lbl">Партийная база</span><span class="lbl">Центр</span></div>'
+   +'<input type="range" id="pos" min="0" max="100" value="'+u.pos+'" aria-label="Позиция: от партийной базы до центра"><div><span class="pill me" id="posL">'+posLabel(u.pos)+'</span></div>'
+   +'<p class="hint">Праймериз любят тех, кто ближе к базе (особенно кокусы), независимые избиратели ближе к центру. Осенью база даёт запас в «своих» штатах, а центр выигрывает колеблющиеся. На каждом этапе вы сможете чуть сместить позицию.</p></div>'
+   +'<div><h3>Первые двое в команде <span class="mono dim" style="font-size:14px">('+u.hire.length+'/2)</span></h3><p class="hint">Ещё двоих наймёте по ходу праймериз.</p></div><div class="grid3">'+adv+'</div>'
+   +'<div><button class="btn pri big" data-act="begin"'+(ready?'':' disabled')+'>К первому этапу</button></div></div>';
+}
+
+function primMapCard(cur,foc,hl){
+  const done=G.stateRes||{},act=cur||hl;
+  const tiles=STATES.map(s=>{
+    const sid=stageOf(s.code),w=done[s.code],isCur=sid===cur||sid===hl;
+    let st='grid-row:'+(s.row+1)+';grid-column:'+(s.col+1)+';',cls='tile pt';
+    if(w){st+='background:'+winCol(w)+';'+(w==='me'?'':'color:#14110a;')}
+    else{st+='background:'+STC[sid]+';';if(!isCur)cls+=' fut'}
+    if(isCur)cls+=' cur';
+    if(foc&&sid===cur&&s.region===foc)cls+=' ad';
+    return '<div class="'+cls+'" style="'+st+'" title="'+esc(s.name+' · этап '+sid)+'"><span>'+s.code+'</span></div>';
+  }).join('');
+  const seg=STAGES.map(x=>{
+    const sd=G.stageDel&&G.stageDel[x.id];
+    const inner=sd?sd.map(r=>'<div style="width:'+(r.got/x.del*100)+'%;background:'+winCol(r.id)+'"></div>').join(''):'<div style="width:100%;background:'+STC[x.id]+';opacity:'+(x.id===act?1:.5)+'"></div>';
+    return '<div class="sg'+(x.id===act?' cur':'')+'" style="flex:'+x.del+'" title="'+esc(x.name+': '+x.del+' делегатов')+'">'+inner+'</div>';
+  }).join('');
+  const sw=(c,t)=>'<span class="pill"><i class="sw" style="background:'+c+'"></i>'+esc(t)+'</span>';
+  const leg=[sw('var(--me)',G.me.name)].concat(G.rivals.map(r=>sw(winCol(r.id),r.name+(r.out?' (снялся)':'')))).concat([sw('#6B7BA3','ещё не голосовали')]).join(' ');
+  const stl=STAGES.map(x=>{
+    const sd=G.stageDel&&G.stageDel[x.id];let right=x.del+' дел.';
+    if(sd){const top=sd.slice().sort((a,b)=>b.got-a.got)[0],c=activeAll(G).filter(c=>c.id===top.id)[0];right=esc(c.isMe?'Вы':c.name.split(' ')[1]||c.name)+' +'+top.got+' из '+x.del}
+    return '<div class="kv"><span><i class="sw" style="background:'+STC[x.id]+'"></i>'+x.id+'. '+esc(x.name)+(x.id===act?' ◀':'')+'</span><span class="mono">'+right+'</span></div>';
+  }).join('');
+  let reg='';
+  if(act){
+    reg='<div><div class="lbl" style="margin-bottom:6px">Откуда делегаты этапа «'+esc(STAGES[act-1].name)+'»</div><div class="row" style="gap:6px">'+REGIONS.filter(r=>regionShare(act,r)>0).map(r=>'<span class="pill'+(foc===r?' me':'')+'">'+RN[r]+' '+Math.round(regionShare(act,r)*100)+'%</span>').join(' ')+'</div></div>';
+  }
+  return '<div class="card"><div class="lbl" style="margin-bottom:8px">Карта праймериз: кто где побеждает</div><div class="pm"><div><div class="map pmap">'+tiles+'</div><div class="row" style="margin-top:8px;gap:6px">'+leg+'</div><p class="hint" style="margin-top:6px">Раскладка по штатам примерная: итог этапа определяют делегаты.</p></div>'
+   +'<div class="stack" style="gap:12px"><div><div class="lbl" style="margin-bottom:6px">Календарь: ширина = число делегатов</div><div class="sgbar">'+seg+'</div></div><div>'+stl+'</div>'+reg+'</div></div></div>';
+}
+function tacDots(st,k){
+  const w=st.w[k]!=null?st.w[k]:(XW[st.id][k]);
+  if(w==null||!TACT[k].v||k==='fund'||k==='oppo'||k==='attack')return '';
+  return '<span class="s">Сила на этом этапе '+dots(clamp(Math.round(TACT[k].v*w*2.2),1,3))+'</span>';
+}
+function segBar(rows,total){
+  return '<div class="seg tall">'+rows.map(r=>'<div style="width:'+(r.v/total*100)+'%;background:'+r.col+'" title="'+esc(r.n)+'"></div>').join('')+'</div>';
+}
+function candRow(c,extra){
+  return '<div class="kv" style="align-items:center"><span style="display:flex;align-items:center;gap:8px;min-width:0"><i style="width:10px;height:10px;border-radius:2px;background:'+colorOf(c)+';flex:none"></i><span style="min-width:0"><b>'+esc(c.name)+'</b><br><span class="hint">'+esc(c.tag)+(c.out?' · снялся':'')+'</span></span></span><span class="mono" style="text-align:right">'+extra+'</span></div>';
+}
+function viewPlan(){
+  const st=STAGES[G.stageIdx],est=estimate(G),cost=planCost(G);
+  const total=sum(activeAll(G).map(c=>c.del));
+  const tone=[[-1,'Нажать на базу','Позиция −8: ближе к партийному активу'],[0,'Держать курс','Позиция остаётся прежней'],[1,'Тянуться к центру','Позиция +8: шире аудитория, холоднее актив']].map(([v,t,d])=>
+    '<button class="opt'+(G.plan.tone===v?' on':'')+'" data-act="tone" data-v="'+v+'" aria-pressed="'+(G.plan.tone===v)+'"><span class="t">'+t+'</span><span class="s">'+d+'</span></button>').join('');
+  const tac=Object.keys(TACT).map(k=>{const t=TACT[k],on=G.plan.tactics.includes(k);
+    const dis=!on&&(G.plan.tactics.length>=2||G.funds<cost+t.cost);
+    const price=k==='fund'?'+'+money(7*mult(G,'fundraise')):t.cost?money(t.cost):'бесплатно';
+    return '<button class="opt'+(on?' on':'')+'" data-act="tac" data-v="'+k+'" aria-pressed="'+on+'"'+(dis?' disabled':'')+'><span class="t">'+t.n+'</span><span class="s">'+t.d+'</span>'+tacDots(st,k)+'<span class="m">'+price+'</span></button>'}).join('');
+  const alive=G.rivals.filter(r=>!r.out),ldr=alive.slice().sort((a,b)=>(b.del+b.mo*20)-(a.del+a.mo*20))[0];
+  const needT=G.plan.tactics.some(k=>k==='attack'||k==='oppo');
+  const tgtSel=G.plan.target||(ldr?ldr.id:null);
+  const tgtHTML=needT?'<div><h3>Цель удара</h3></div><div class="grid3">'+alive.map(r=>'<button class="opt'+(tgtSel===r.id?' on':'')+'" data-act="tgt" data-v="'+r.id+'" aria-pressed="'+(tgtSel===r.id)+'"><span class="t">'+esc(r.name)+'</span><span class="s">'+esc(r.tag)+(ldr&&ldr.id===r.id?' · лидер среди соперников':'')+'</span><span class="m">'+r.del+' дел.</span></button>').join('')+'</div>':'';
+  const themes=Object.keys(ISSUES).map(k=>{const on=G.plan.theme===k,b=themeBonus(G,G.me,k,st);
+    return '<button class="opt'+(on?' on':'')+'" data-act="theme" data-v="'+k+'" aria-pressed="'+on+'"><span class="t" style="font-size:16px">'+ISSUES[k]+'</span><span class="s">'+(st.hot.includes(k)?'Горячая тема этапа. ':'')+(G.me.accents.includes(k)?'Ваш акцент.':'Не ваш акцент.')+'</span><span class="s">Отдача '+dots(clamp(Math.round(b*3.5),0,3))+'</span></button>'}).join('');
+  const regs=REGIONS.filter(r=>regionShare(st.id,r)>0).map(r=>{const on=G.plan.region===r,e=regionEffect(st.id,r);
+    return '<button class="opt'+(on?' on':'')+'" data-act="region" data-v="'+r+'" aria-pressed="'+on+'"'+(!on&&G.funds<cost+REG_COST?' disabled':'')+'><span class="t" style="font-size:16px">'+RN[r]+'</span><span class="s">'+Math.round(regionShare(st.id,r)*100)+'% делегатов этапа</span><span class="m">'+money(REG_COST)+' · эффект '+sgn(e)+'</span></button>'}).join('');
+  const rows=est.map(e=>candRow(e.c,'≈ '+Math.round(e.share*100)+'%<br><span class="hint">'+e.c.del+' дел.</span>')).join('');
+  const del=activeAll(G).map(c=>({v:c.del,col:colorOf(c),n:c.name}));
+  return '<div class="stack">'+chy('Этап '+st.id+' из 5','<span><b>'+st.name+'</b> · '+st.date+'</span><span>Делегатов на кону: <b>'+st.del+'</b></span><span>Фонд <b>'+money(G.funds)+'</b></span>')
+   +'<div><h2>'+st.name+'</h2><p class="dim">'+st.sub+'</p></div><p style="max-width:70ch">'+st.txt+' Горячие темы этапа: '+st.hot.map(h=>'<span class="pill gold">'+ISSUES[h]+'</span>').join(' ')+'</p>'
+   +'<div class="layout"><div class="card"><div class="lbl" style="margin-bottom:6px">Опросы перед этапом (с погрешностью ±6)</div>'+rows+'</div>'
+   +'<div class="card"><div class="lbl" style="margin-bottom:8px">Делегаты после '+(G.stageIdx)+' '+pl(G.stageIdx,['этапа','этапов','этапов'])+'</div>'+(total?segBar(del,Math.max(1,total)):'<p class="hint">Пока никто не получил делегатов.</p>')
+   +'<p class="hint" style="margin-top:8px">Для номинации нужно более половины всех делегатов: 476 из 950.</p><div style="margin-top:12px" class="kv"><span>Ваша позиция</span><span class="pill me">'+posLabel(clamp(G.me.pos+G.plan.tone*8,5,95))+'</span></div>'
+   +'<div class="kv"><span>Ваши темы</span><span style="text-align:right">'+G.me.accents.map(a=>ISSUES[a]).join(', ')+'</span></div><div class="kv"><span>Команда</span><span style="text-align:right">'+G.team.map(i=>ADV[i].role).join(', ')+'</span></div></div></div>'
+   +primMapCard(st.id,G.plan.region,0)
+   +'<div><h3>Тон этапа</h3></div><div class="grid3">'+tone+'</div>'
+   +'<div><h3>Тема этапа <span class="mono dim" style="font-size:14px">(бесплатно, одна на выбор)</span></h3></div><div class="grid3">'+themes+'</div>'
+   +'<div><h3>Региональный акцент <span class="mono dim" style="font-size:14px">(выгоден, когда этап сосредоточен в одном регионе)</span></h3></div><div class="grid3">'+regs+'</div>'
+   +'<div><h3>Тактика <span class="mono dim" style="font-size:14px">(не больше двух)</span></h3></div><div class="grid">'+tac+'</div>'+tgtHTML
+   +'<div class="row"><button class="btn pri big" data-act="runstage">Провести этап</button><span class="mono dim">Затраты: '+money(cost)+'</span></div></div>';
+}
+function viewStageRes(){
+  const r=G.lastRes,st=r.stage;
+  const rows=r.rows.map(x=>candRow(x.c,Math.round(x.share*100)+'% · +'+x.got+'<br><span class="hint">всего '+x.cum+'</span>')).join('');
+  const all=activeAll(G).map(c=>({v:c.del,col:colorOf(c),n:c.name}));
+  const last=G.stageIdx>=5;
+  const next=last?'К съезду партии':G.needHire?'Расширить команду':'Следующий этап';
+  return '<div class="stack">'+chy('Итоги этапа','<span><b>'+st.name+'</b></span><span>Фонд <b>'+money(G.funds)+'</b></span>')
+   +'<h2>'+st.name+': результаты</h2><div class="layout"><div class="card">'+rows+'</div><div class="card stack" style="gap:10px"><div class="lbl">Всего делегатов</div><div class="cum">'+segBar(all,Math.max(1,r.total))+'<div class="mark" style="left:'+(476/950*100)+'%"></div></div><p class="hint">Белая черта: рубеж большинства, 476 делегатов.</p>'
+   +'<div class="kv"><span>Пожертвования после этапа</span><span class="mono">+'+money(r.inc)+'</span></div><div class="kv"><span>Потрачено на кампанию</span><span class="mono">−'+money(r.spent)+'</span></div></div></div>'
+   +primMapCard(0,null,st.id)+'<div class="card"><div class="lbl" style="margin-bottom:6px">Хроника этапа</div><div class="log">'+r.notes.map(n=>'<div>'+esc(n)+'</div>').join('')+'</div></div>'
+   +'<div><button class="btn pri big" data-act="next">'+next+'</button></div></div>';
+}
+function viewHire(){
+  const free=ADV_LIST.filter(a=>!G.team.includes(a.id));
+  return '<div class="stack">'+chy('Команда растёт','<span>После этапа '+G.stageIdx+' к вам приходят новые люди</span>')+'<h2>Кого взять в штаб?</h2><p class="dim">Выберите одного. Он останется с вами и осенью.</p>'
+   +'<div class="grid3">'+free.map(a=>'<button class="opt" data-act="hire" data-v="'+a.id+'"><span class="t">'+a.role+'</span><span class="s" style="color:var(--text)">'+a.name+'</span><span class="s" style="margin-top:6px">'+a.d+'</span></button>').join('')+'</div></div>';
+}
+function viewConv(){
+  const cs=convStatus(G),all=activeAll(G).map(c=>({v:c.del,col:colorOf(c),n:c.name}));
+  const rv=cs.best;
+  let opts='';
+  const o=(k,t,s,m)=>'<button class="opt" data-act="conv" data-v="'+k+'"><span class="t">'+t+'</span><span class="s">'+s+'</span>'+(m?'<span class="m">'+m+'</span>':'')+'</button>';
+  let intro;
+  if(cs.kind==='majority'){intro='Вы набрали '+G.me.del+' делегатов из '+cs.total+'. Это уже большинство.';opts=o('ok','Принять номинацию','Съезд пройдёт как праздник.','')}
+  else if(cs.kind==='lead'){intro='Вы лидируете с '+G.me.del+' делегатами, но до большинства ('+cs.maj+') не дотянули. На съезде нужно договариваться.';
+    opts=o('dealvp','Предложить соперникам вице-президентство','Единство партии растёт, но напарника выберут за вас.','Единство +0,5')+o('dealplat','Включить идеи '+rv.name+' в платформу','Единство растёт, а ваш образ смещается к её позиции.','Единство +0,3')+o('fight','Идти до конца','Победа неизбежна, но партия расколота.','Единство −0,5')}
+  else{intro='Вы набрали '+G.me.del+' делегатов, а '+rv.name+' набрал '+rv.del+'. Номинация решается на съезде, и вы в роли догоняющего.';
+    opts=o('fight','Бороться за делегатов кулуарами','Шанс примерно '+Math.round(convChance(G,'fight')*100)+'%. В случае успеха партия расколота.','Единство −0,6')+o('deal','Заключить сделку с лидером','Шанс '+Math.round(convChance(G,'deal')*100)+'%. Вы принимаете часть его программы.','Единство −0,2')}
+  return '<div class="stack">'+chy('Съезд партии','<span>Итоги праймериз</span>')+'<h2>Съезд партии</h2>'+primMapCard(0,null,0)+'<div class="card stack" style="gap:10px"><div class="cum">'+segBar(all,Math.max(1,cs.total))+'<div class="mark" style="left:'+(cs.maj/cs.total*100)+'%"></div></div>'
+   +activeAll(G).map(c=>candRow(c,c.del+' дел.')).join('')+'</div><p style="max-width:70ch">'+intro+'</p><div class="grid">'+opts+'</div></div>';
+}
+function viewConvDone(){
+  return '<div class="stack">'+chy('Съезд партии','<span>Решение принято</span>')+'<h2>Вы кандидат в президенты</h2><p style="max-width:70ch">'+esc(G.convOut.text)+'</p><div><button class="btn pri big" data-act="tovp">Выбрать напарника</button></div></div>';
+}
+function viewOut(){
+  return '<div class="stack">'+chy('Конец гонки','<span>Номинацию получил другой</span>')+'<h1 style="font-size:clamp(44px,10vw,84px)">Вы проиграли праймериз</h1><p style="max-width:62ch">'+esc(G.convOut?G.convOut.text:'У вас не хватило делегатов, чтобы бороться за номинацию.')+'</p><div><button class="btn pri big" data-act="again">Попробовать снова</button></div></div>';
+}
+function viewVP(){
+  const ops=vpOptions(G);
+  return '<div class="stack">'+chy('Съезд партии','<span>Выбор напарника</span>')+'<h2>Кто будет вице-президентом?</h2><p class="dim" style="max-width:70ch">Напарник усиливает свой штат (+2,0) и соседей по региону (+0,6), помогает на дебатах и влияет на единство партии.</p>'
+   +'<div class="grid">'+ops.map(v=>'<button class="opt" data-act="vp" data-v="'+v.id+'"><span class="t">'+v.name+'</span><span class="s" style="color:var(--text)">'+v.role+'</span><span class="s" style="margin-top:6px">'+v.desc+'</span><span class="m">Штат: '+S[v.home].name+(v.unity?' · единство +'+f1(v.unity):'')+'</span></button>').join('')+'</div></div>';
+}
+
+/* ---- осенняя кампания ---- */
+function legend(polls){
+  const sw=(c,t)=>'<span><i style="background:'+c+'"></i>'+t+'</span>';
+  const m=G.side==='D'?['--d3','--d2','--d1']:['--r3','--r2','--r1'],o=G.side==='D'?['--r3','--r2','--r1']:['--d3','--d2','--d1'];
+  return '<div class="legend">'+sw('var('+m[0]+')','вы твёрдо')+sw('var('+m[1]+')','вы уверенно')+sw('var('+m[2]+')','вы слегка')+sw('var(--toss)','равенство (менее 3)')+sw('var('+o[2]+')','соперник слегка')+sw('var('+o[0]+')','соперник твёрдо')+(polls?sw('var(--panel2)','нет данных'):'')+'<span>точка: реклама · полоска: штаб'+(polls?' · «?»: источники расходятся · тусклый: опрос устарел':'')+'</span></div>';
+}
+function tileHTML(s,cls,extra,sel){
+  return '<button class="tile '+cls+(sel?' sel':'')+extra+'" data-act="sel" data-v="'+s.code+'" style="grid-row:'+(s.row+1)+';grid-column:'+(s.col+1)+'" aria-label="'+s.name+', '+s.ev+' выборщиков"><span>'+s.code+'</span><small>'+s.ev+'</small></button>';
+}
+function viewGeneral(){
+  const pj=projection(G,G.view),tot=538,sel=S[G.sel];
+  const tiles=STATES.map(s=>{const x=G.st[s.code],a=viewVal(G,s,G.view);return tileHTML(s,a?tierOf(G,a.v):'u',(x.ad>1?' ad':'')+(x.ground?' g'+x.ground:'')+(a&&a.age>=3?' old':'')+(a&&a.dis?' dis':''),s.code===G.sel)}).join('');
+  const x=G.st[sel.code],ag=aggOf(G,sel),p=ag?ag.v:0,unk=pj.toss+pj.unk;
+  const viewName=G.view==='avg'?'Среднее по опросам':SRCB[G.view].n;
+  const srcRows=[{id:'avg',s:'Среднее по опросам'}].concat(SRC.filter(r=>r.id!=='track')).map(r=>{const q=projection(G,r.id);return '<button class="srcrow'+(G.view===r.id?' on':'')+'" data-act="view" data-v="'+r.id+'" aria-pressed="'+(G.view===r.id)+'"><span>'+esc(r.s)+'</span><span class="mono"><span style="color:var(--me)">'+q.me+'</span> · <span style="color:var(--toss)">'+(q.toss+q.unk)+'</span> · <span style="color:var(--op)">'+q.op+'</span></span></button>'}).join('');
+  const srcCard='<div class="card stack" style="gap:6px;margin-top:12px"><div class="lbl">Чьи данные на карте</div>'+srcRows+'<p class="hint">Числа: вы · неясно · соперник. Источники по-разному ошибаются и не всегда выпускают данные. Верить ли среднему, решаете вы.</p></div>';
+  const pollRows=ag?ag.items.map(it=>'<div class="kv"><span>'+esc(it.r.s)+'<br><span class="hint">'+(it.age===0?'эта неделя':it.age+' нед. назад')+(G.team.includes('strategist')&&it.r.id!=='track'?' · склонность ≈ '+sgn(G.houseEst[it.r.id]):'')+'</span></span><span class="mono">'+sgn(it.v)+'</span></div>').join('')+'<div class="kv"><span><b>Среднее</b>'+(ag.n>1?'<br><span class="hint">разброс свежих: '+sgn(ag.lo)+' … '+sgn(ag.hi)+'</span>':'')+'</span><span class="mono"><b>'+sgn(ag.v)+'</b></span></div>':'<p class="hint">Свежих опросов по этому штату нет.</p>';
+  const trk=G.polls.track[sel.code],trkDis=G.funds<COST.track||(trk&&trk.w===G.week)||G.pending;
+  const sug=suggest(G).map(s=>'<button class="btn sm" data-act="sel" data-v="'+s.code+'">'+s.code+'</button>').join(' ');
+  const pr=G.pending?'':'';
+  const dis=G.pending?' disabled':'';
+  const ad=adCost(sel);
+  const st=(on,t)=>' '+(on?'':'disabled');
+  const sp=G.me.accents.map(a=>'<button class="btn sm" data-act="speech" data-v="'+a+'"'+(G.ap<1||G.funds<COST.speech||G.pending?' disabled':'')+'>'+ISSUES[a].split(' ')[0]+'</button>').join(' ');
+  const issues=sel.issues.map(i=>'<span class="pill'+(G.me.accents.includes(i)?' me':G.opAccents.includes(i)?' bad':'')+'">'+ISSUES[i]+'</span>').join(' ');
+  const tone=!ag?'<span class="pill">Нет данных</span>':p>=3?'<span class="pill good">Вы впереди</span>':p<=-3?'<span class="pill bad">Вы позади</span>':'<span class="pill gold">Борьба</span>';
+  const logs=G.weekLog.length?'<div><b>Эта неделя</b></div>'+G.weekLog.map(t=>'<div>'+esc(t)+'</div>').join(''):'';
+  const hist=G.log.map(l=>'<div><b>Нед. '+l.w+'</b>'+l.items.map(esc).join(' ')+'</div>').join('');
+  return '<div class="stack">'
+   +chy('Неделя '+G.week+' из 10','<span>До выборов: <b>'+(11-G.week)+' '+pl(11-G.week,['неделя','недели','недель'])+'</b></span><span>Фонд: <b>'+money(G.funds)+'</b></span><span>Дни кандидата: <b>'+G.ap+'</b></span>'+(G.week>1?'<span>Соперник потратил (оценка прессы): <b>≈'+money(G.opSeen)+'</b></span>':''))
+   +'<div class="lbl" style="margin-bottom:6px">Карта: '+esc(viewName)+'</div><div class="evbar" role="img" aria-label="Оценка источника: у вас '+pj.me+', у соперника '+pj.op+', неясно '+unk+'"><div class="seg"><div style="width:'+pj.me/tot*100+'%;background:var(--me)"></div><div style="width:'+unk/tot*100+'%;background:var(--toss)"></div><div style="width:'+pj.op/tot*100+'%;background:var(--op)"></div></div><div class="mid"></div>'
+   +'<div class="nums"><span>Вы '+pj.me+'</span><span>Неясно '+unk+' · для победы нужно 270</span><span>Соперник '+pj.op+'</span></div></div>'
+   +'<div class="layout"><div><div class="map" role="group" aria-label="Карта штатов">'+tiles+'</div>'+legend(true)+srcCard+'</div>'
+   +'<div class="stack" style="gap:12px">'
+   +'<div class="card stack" style="gap:8px"><div class="row" style="justify-content:space-between"><h3>'+sel.name+'</h3><span class="mono"><b>'+sel.ev+'</b> '+pl(sel.ev,['выборщик','выборщика','выборщиков'])+'</span></div>'
+   +'<div class="row">'+tone+'<span class="hint">плюс: в вашу пользу</span></div>'+pollRows+'<div class="row">'+issues+'</div>'
+   +'<div class="kv"><span>Ваша реклама / соперника</span><span class="mono">'+f1(x.ad)+' / '+f1(x.opAd)+'</span></div><div class="kv"><span>Штаб</span><span class="mono">уровень '+x.ground+' из 3</span></div>'
+   +'<div class="acts"><button class="btn sm" data-act="ad"'+(G.funds<ad||G.pending?' disabled':'')+'>Реклама · '+money(ad)+'</button>'
+   +'<button class="btn sm" data-act="rally"'+(G.ap<1||G.funds<COST.rally||G.pending?' disabled':'')+'>Митинг · 1 день · '+money(COST.rally)+'</button>'
+   +'<button class="btn sm" data-act="field"'+(x.ground>=3||G.funds<COST.field||G.pending?' disabled':'')+'>Штаб · '+money(COST.field)+'</button><button class="btn sm" data-act="track"'+(trkDis?' disabled':'')+'>Свежий опрос · '+money(COST.track)+'</button></div></div>'
+   +'<div class="card stack" style="gap:8px"><div class="lbl">Штаб рекомендует</div><div class="row">'+sug+'</div><div class="lbl" style="margin-top:6px">Общенациональные действия</div>'
+   +'<div class="acts"><button class="btn sm" data-act="fund"'+(G.ap<1||G.fundraised>=2||G.pending?' disabled':'')+'>Сбор средств · 1 день</button>'
+   +'<button class="btn sm" data-act="prep"'+(G.ap<1||G.prep>=3||G.pending?' disabled':'')+'>Дебаты: подготовка '+G.prep+'/3 · 1 день</button>'
+   +'<button class="btn sm" data-act="attack"'+(G.funds<COST.attack||G.pending?' disabled':'')+'>Атака на соперника · '+money(COST.attack)+'</button></div>'
+   +'<div class="lbl" style="margin-top:6px">Программная речь · 1 день</div><div class="row">'+sp+'</div></div>'
+   +'<button class="btn pri big" data-act="endweek"'+dis+'>Завершить неделю</button>'
+   +'<div class="card"><div class="lbl" style="margin-bottom:6px">Хроника</div><div class="log">'+(logs||'')+(hist||(logs?'':'<span class="hint">Пока тихо.</span>'))+'</div></div></div></div>'
+   +'</div>'+modal();
+}
+function modal(){
+  const p=G.pending;if(!p)return '';
+  if(p.type==='event'){
+    const ev=EVENTS[p.id];
+    if(p.out)return '<div class="modal"><div class="box"><span class="lbl">Событие</span><h2>'+ev.t+'</h2><p class="quote">'+esc(p.out)+'</p><button class="btn pri" data-act="dismiss">Продолжить</button></div></div>';
+    return '<div class="modal"><div class="box"><span class="lbl">Событие недели '+G.week+'</span><h2>'+ev.t+'</h2><p>'+ev.x+'</p>'+ev.c.map((c,i)=>'<button class="opt" data-act="evt" data-v="'+i+'"><span class="t" style="font-size:16px">'+c.t+'</span><span class="s">'+c.h+'</span></button>').join('')+'</div></div>';
+  }
+  const names={attack:'атаковать',policy:'говорить о политике',charm:'делать ставку на харизму'};
+  if(p.out){
+    const o=p.out;
+    return '<div class="modal"><div class="box"><span class="lbl">Дебаты №'+p.n+'</span><h2>'+(o.d>0?'Вы выиграли вечер':'Вечер за соперником')+'</h2><p class="quote">'+o.text+'</p><div class="kv"><span>Преимущество</span><span class="mono">'+sgn(o.d)+'</span></div><div class="kv"><span>Стратегия против стратегии соперника</span><span class="mono">'+(o.rps>0?'в вашу пользу':o.rps<0?'в пользу соперника':'равно')+'</span></div><button class="btn pri" data-act="dismiss">Продолжить</button></div></div>';
+  }
+  return '<div class="modal"><div class="box"><span class="lbl">Дебаты №'+p.n+' из 2</span><h2>Выход на сцену</h2><p>Штаб предполагает, что соперник будет <b>'+names[p.hint]+'</b>'+(G.team.includes('strategist')?' (аналитики почти уверены).':' (разведка не гарантирует).')+' Подготовка: <b>'+G.prep+'/3</b>.</p>'
+   +'<p class="hint">Правила: атака бьёт харизму, харизма бьёт политику, политика бьёт атаку.</p>'
+   +Object.keys(DEB).map(k=>'<button class="opt" data-act="deb" data-v="'+k+'"><span class="t" style="font-size:16px">'+DEB[k].n+'</span><span class="s">'+DEB[k].d+'</span></button>').join('')+'</div></div>';
+}
+function viewNight(){
+  const n=G.night,f=G.final,rev=new Set(n.order.slice(0,n.i));
+  let me=0,op=0;rev.forEach(c=>{if(f.res[c].win)me+=S[c].ev;else op+=S[c].ev});
+  const tiles=STATES.map(s=>{
+    if(!rev.has(s.code))return tileHTML(s,'u','',false);
+    const m=f.res[s.code].m,a=Math.abs(m),party=(m>0?G.side:G.opSide).toLowerCase();
+    return tileHTML(s,party+(a<3?1:a<8?2:3),'',false);
+  }).join('');
+  const lastC=n.i?S[n.order[n.i-1]]:null;
+  return '<div class="stack">'+chy('Ночь выборов','<span>'+(lastC?'Последний результат: <b>'+lastC.name+'</b> '+(f.res[lastC.code].win?'за вас':'за соперника'):'Закрываются первые участки')+'</span>')
+   +'<div class="night"><div class="side me"><span class="lbl">'+esc(G.me.name)+'</span><div class="big-n" style="color:var(--me)">'+me+'</div></div><div class="side op"><span class="lbl">Соперник</span><div class="big-n" style="color:var(--op)">'+op+'</div></div></div>'
+   +'<div class="evbar"><div class="seg"><div style="width:'+me/538*100+'%;background:var(--me)"></div><div style="width:'+(538-me-op)/538*100+'%;background:var(--panel2)"></div><div style="width:'+op/538*100+'%;background:var(--op)"></div></div><div class="mid"></div><div class="nums"><span></span><span>270 для победы</span><span></span></div></div>'
+   +'<div class="map" role="group" aria-label="Результаты по штатам">'+tiles+'</div>'
+   +'<div><button class="btn" data-act="skip">Показать итог сразу</button></div></div>';
+}
+function viewResult(){
+  const f=G.final,won=f.winner==='me';
+  const close=STATES.slice().sort((a,b)=>Math.abs(f.res[a.code].m)-Math.abs(f.res[b.code].m)).slice(0,5);
+  const tiles=STATES.map(s=>{const m=f.res[s.code].m,a=Math.abs(m),party=(m>0?G.side:G.opSide).toLowerCase();return tileHTML(s,party+(a<3?1:a<8?2:3),'',false)}).join('');
+  const deb=G.debates.map(d=>'№'+d.n+': '+(d.won?'победа':'поражение')).join(', ')||'не было';
+  const pop=G.dir*0;
+  return '<div class="stack">'+chy('Итоги выборов','<span>'+(f.tie?'Ничья 269:269. Решение Палаты представителей.':'Голоса выборщиков подсчитаны')+'</span>')
+   +'<h1 style="font-size:clamp(46px,11vw,96px);color:'+(won?'var(--good)':'var(--bad)')+'">'+(won?'Победа':'Поражение')+'</h1>'
+   +'<p style="font-size:18px;max-width:60ch">'+(won?esc(G.me.name)+' становится президентом: <b>'+f.me+'</b> голосов выборщиков против <b>'+f.op+'</b>.':'Президентом становится соперник: <b>'+f.op+'</b> голосов против <b>'+f.me+'</b> у вас.')+' Разрыв по голосам избирателей: '+sgn(f.pop)+' п. п. (оценка).</p>'
+   +'<div class="map" role="img" aria-label="Итоговая карта">'+tiles+'</div>'+legend()
+   +'<div class="grid"><div class="card"><div class="lbl" style="margin-bottom:6px">Самые тесные штаты</div>'+close.map(s=>'<div class="kv"><span>'+s.name+' ('+s.ev+')</span><span class="mono">'+(f.res[s.code].win?'вы ':'соперник ')+sgn(Math.abs(f.res[s.code].m))+'</span></div>').join('')+'</div>'
+   +'<div class="card"><div class="lbl" style="margin-bottom:6px">Ваша кампания</div><div class="kv"><span>Темы</span><span style="text-align:right">'+G.me.accents.map(a=>ISSUES[a]).join(', ')+'</span></div><div class="kv"><span>Позиция</span><span>'+posLabel(G.me.pos)+'</span></div><div class="kv"><span>Команда</span><span style="text-align:right">'+G.team.map(i=>ADV[i].role).join(', ')+'</span></div><div class="kv"><span>Напарник</span><span>'+G.vp.name+'</span></div><div class="kv"><span>Дебаты</span><span>'+deb+'</span></div></div>'
+    +'<div class="card"><div class="lbl" style="margin-bottom:6px">Что показывали опросы в последнюю неделю</div><p class="hint" style="margin-bottom:6px">Вы · неясно · соперник</p>'+(G.finalPolls||[]).map(r=>'<div class="kv"><span>'+esc(r.n)+'</span><span class="mono">'+r.me+' · '+r.q+' · '+r.op+'</span></div>').join('')+'<div class="kv"><span><b>Итог</b></span><span class="mono"><b>'+f.me+' · 0 · '+f.op+'</b></span></div><p class="hint" style="margin-top:8px">Общий сдвиг опросов: '+(G.pollBias>0?'завышали ваши шансы':'занижали ваши шансы')+' примерно на '+f1(Math.abs(G.pollBias))+' п. п.</p></div></div>'
+   +'<div class="row"><button class="btn pri big" data-act="again">Сыграть снова</button></div></div>';
+}
+
+function view(){
+  if(!G)return viewTitle();
+  switch(G.phase){
+    case'setup':return viewSetup();case'plan':return viewPlan();case'stageRes':return viewStageRes();case'hire':return viewHire();
+    case'convention':return viewConv();case'convDone':return viewConvDone();case'out':return viewOut();case'vp':return viewVP();
+    case'general':return viewGeneral();case'night':return viewNight();case'result':return viewResult();
+  }
+  return '';
+}
+function render(keep){
+  const y=window.scrollY;
+  app.dataset.side=G?G.side:UI.side;
+  app.innerHTML=view();
+  window.scrollTo(0,keep?y:0);
+}
+function flash(r){if(r&&!r.ok&&G){G.flash=r.msg}}
+const H={
+  side:d=>{UI.side=d.v;render(true)},
+  diff:d=>{UI.diff=d.v;render(true)},
+  start:()=>{G=newGame(UI.side,UI.diff);render()},
+  acc:d=>{const a=G.ui.acc,i=a.indexOf(d.v);if(i>=0)a.splice(i,1);else if(a.length<3)a.push(d.v);render(true)},
+  adv:d=>{const a=G.ui.hire,i=a.indexOf(d.v);if(i>=0)a.splice(i,1);else if(a.length<2)a.push(d.v);render(true)},
+  begin:()=>{setupPrimaries(G,G.ui);render()},
+  tone:d=>{G.plan.tone=+d.v;render(true)},
+  theme:d=>{G.plan.theme=G.plan.theme===d.v?null:d.v;render(true)},
+  region:d=>{G.plan.region=G.plan.region===d.v?null:d.v;render(true)},
+  tgt:d=>{G.plan.target=d.v;render(true)},
+  tac:d=>{const t=G.plan.tactics,i=t.indexOf(d.v);if(i>=0)t.splice(i,1);else if(t.length<2)t.push(d.v);render(true)},
+  runstage:()=>{resolveStage(G);render()},
+  next:()=>{
+    if(G.stageIdx>=5){G.phase='convention'}else if(G.needHire){G.phase='hire'}else{G.phase='plan';beginPlan(G)}
+    render();
+  },
+  hire:d=>{hireAdv(G,d.v);render()},
+  conv:d=>{convChoose(G,d.v);render()},
+  tovp:()=>{G.phase='vp';render()},
+  vp:d=>{pickVP(G,d.v);render()},
+  sel:d=>{G.sel=d.v;render(true)},
+  ad:()=>{flash(actAd(G,G.sel));render(true)},
+  rally:()=>{flash(actRally(G,G.sel));render(true)},
+  field:()=>{flash(actField(G,G.sel));render(true)},
+  fund:()=>{flash(actFund(G));render(true)},
+  speech:d=>{flash(actSpeech(G,d.v));render(true)},
+  prep:()=>{flash(actPrep(G));render(true)},
+  attack:()=>{flash(actAttack(G));render(true)},
+  track:()=>{flash(actTrack(G,G.sel));render(true)},
+  view:d=>{G.view=d.v;render(true)},
+  endweek:()=>{endWeek(G);if(G.phase==='night'){runNight()}render()},
+  evt:d=>{chooseEvent(G,+d.v);render(true)},
+  deb:d=>{doDebate(G,d.v);render(true)},
+  dismiss:()=>{dismiss(G);render(true)},
+  skip:()=>{stopNight();G.phase='result';render()},
+  again:()=>{stopNight();G=null;render()}
+};
+function stopNight(){if(timer){clearInterval(timer);timer=null}}
+function runNight(){
+  stopNight();
+  timer=setInterval(()=>{
+    if(!G||G.phase!=='night'){stopNight();return}
+    G.night.i++;
+    if(G.night.i>=G.night.order.length){stopNight();G.phase='result';render();return}
+    render(true);
+  },240);
+}
+document.addEventListener('click',e=>{
+  const el=e.target.closest('[data-act]');
+  if(!el||el.disabled)return;
+  const h=H[el.dataset.act];if(h)h(el.dataset);
+});
+document.addEventListener('input',e=>{
+  if(e.target.id==='pos'&&G){G.ui.pos=+e.target.value;const l=document.getElementById('posL');if(l)l.textContent=posLabel(G.ui.pos)}
+});
+render();
+})();
+</script>
+
+</body></html>
